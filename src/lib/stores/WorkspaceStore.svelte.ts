@@ -1,14 +1,14 @@
-export type LeftSideBarContentTypeSelection =  'Images' | 'Templates' | 'DcmFiles';
+export type LeftSideBarContentTypeSelection = 'Images' | 'Templates' | 'DcmFiles';
 export type TopBarContentTypeSelection = 'Colors' | 'LineStrokes';
 
 type SideBarContentSelection = {
-	leftBarSelection: LeftSideBarContentTypeSelection | null;
-	topBarSelection: TopBarContentTypeSelection | null;
+    leftBarSelection: LeftSideBarContentTypeSelection | null;
+    topBarSelection: TopBarContentTypeSelection | null;
 };
 
 export interface WorkspaceStoreType {
-	SideBarSelection: SideBarContentSelection;
-	CanvasScale: number;
+    SideBarSelection: SideBarContentSelection;
+    CanvasScale: number;
 }
 
 export const WorkspaceStore = createWorkspaceStore();
@@ -21,7 +21,7 @@ export function createWorkspaceStore() {
         },
         CanvasScale: 100
     });
-    
+
     function setLeftSideBarContentTypeSelection(type: LeftSideBarContentTypeSelection) {
         state.SideBarSelection.leftBarSelection = type;
     }

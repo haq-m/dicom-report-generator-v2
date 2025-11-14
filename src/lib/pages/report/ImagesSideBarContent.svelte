@@ -56,16 +56,16 @@
     }
 </script>
 
-<div class="flex flex-col h-full p-2">
-    <div class="flex justify-center items-center font-medium h-10">
+<div class="flex h-full flex-col p-2">
+    <div class="flex h-10 items-center justify-center font-medium">
         <div class="text-lg">Images</div>
         <div class="grow"></div>
         <button onclick={onXButtonClicked}>
             <CrossSvg />
         </button>
     </div>
-    <hr class="border-slate-300 mx-1 my-2" />
-    <div class="flex flex-col overflow-y-scroll h-full">
+    <hr class="mx-1 my-2 border-slate-300" />
+    <div class="flex h-full flex-col overflow-y-scroll">
         <button
             class="mt-2 mb-2 h-10 w-full items-center justify-center rounded-md bg-[#3A3A4C] text-center text-sm text-white"
             onclick={triggerFileInput}
@@ -80,7 +80,7 @@
             bind:this={fileInput}
             class="hidden"
         />
-        <section class="mt-2 mb-2 text-gray-600 h-full">
+        <section class="mt-2 mb-2 h-full text-gray-600">
             <Masonry
                 items={masonryItems(selectedImages, imageList)}
                 animate={false}

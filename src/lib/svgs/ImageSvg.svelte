@@ -9,7 +9,7 @@
     stroke-width="1.5"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="w-full h-full lucide lucide-image {$$props.class ?? ''}"
+    class="lucide lucide-image h-full w-full {$$props.class ?? ''}"
 >
     <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
     <circle cx="9" cy="9" r="2" />
