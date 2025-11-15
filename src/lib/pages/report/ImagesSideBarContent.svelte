@@ -1,5 +1,4 @@
 <script lang="ts">
-    // import Masonry from '$lib/components/Masonry.svelte';
     import Masonry from 'svelte-bricks';
     import { WorkspaceStore } from '$lib/stores/WorkspaceStore.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
@@ -14,7 +13,7 @@
         'https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxjb2xsZWN0aW9uLXBhZ2V8MTZ8ODY1NDMxfHxlbnwwfHx8fHw%3D'
     ];
 
-    // Handler for the file input change event
+    // Functions
     function handleFileChange(event: Event) {
         const input = event.target as HTMLInputElement;
         const files = input.files;
