@@ -26,11 +26,11 @@
 </script>
 
 <aside
-    class="flex flex-row overflow-hidden bg-white border-r text-gray-800 border-slate-300 ease-in-out"
+    class="flex flex-row overflow-hidden border-r border-slate-300 bg-white text-gray-800 ease-in-out"
     class:w-80={expandDrawer}
     class:w-14={!expandDrawer}
 >
-    <div class="flex flex-col w-14">
+    <div class="flex w-14 flex-col">
         <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Templates')}>
             <TemplateSvg />
         </button>

@@ -70,13 +70,12 @@ export default tseslint.config(
             eslintPluginSvelte.configs['flat/recommended'],
             // https://www.npmjs.com/package/sv with prettier.
             prettier,
-            eslintPluginSvelte.configs['flat/prettier'],
+            eslintPluginSvelte.configs['flat/prettier']
         ],
         languageOptions: {
             parser: svelteParser,
             parserOptions: {
                 parser: tseslint.parser,
-                project: './tsconfig.json',
                 svelteConfig,
                 extraFileExtensions
             }

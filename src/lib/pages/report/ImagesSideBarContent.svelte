@@ -1,5 +1,4 @@
 <script lang="ts">
-    // import Masonry from '$lib/components/Masonry.svelte';
     import Masonry from 'svelte-bricks';
     import { WorkspaceStore } from '$lib/stores/WorkspaceStore.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
@@ -14,7 +13,7 @@
         'https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxjb2xsZWN0aW9uLXBhZ2V8MTZ8ODY1NDMxfHxlbnwwfHx8fHw%3D'
     ];
 
-    // Handler for the file input change event
+    // Functions
     function handleFileChange(event: Event) {
         const input = event.target as HTMLInputElement;
         const files = input.files;
@@ -56,16 +55,16 @@
     }
 </script>
 
-<div class="flex flex-col h-full p-2">
-    <div class="flex justify-center items-center font-medium h-10">
+<div class="flex h-full flex-col p-2">
+    <div class="flex h-10 items-center justify-center font-medium">
         <div class="text-lg">Images</div>
         <div class="grow"></div>
         <button onclick={onXButtonClicked}>
             <CrossSvg />
         </button>
     </div>
-    <hr class="border-slate-300 mx-1 my-2" />
-    <div class="flex flex-col overflow-y-scroll h-full">
+    <hr class="mx-1 my-2 border-slate-300" />
+    <div class="flex h-full flex-col overflow-y-scroll">
         <button
             class="mt-2 mb-2 h-10 w-full items-center justify-center rounded-md bg-[#3A3A4C] text-center text-sm text-white"
             onclick={triggerFileInput}
@@ -80,7 +79,7 @@
             bind:this={fileInput}
             class="hidden"
         />
-        <section class="mt-2 mb-2 text-gray-600 h-full">
+        <section class="mt-2 mb-2 h-full text-gray-600">
             <Masonry
                 items={masonryItems(selectedImages, imageList)}
                 animate={false}
