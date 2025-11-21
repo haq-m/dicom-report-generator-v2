@@ -20,7 +20,7 @@
     <div class="flex h-full w-full">
         <LeftSideBar />
 
-        <div class="flex h-full w-full flex-col">
+        <div class="flex h-full flex-1 flex-col">
             <TopSideBar />
             <DesignBoardComponent {containers} {canvasScale}></DesignBoardComponent>
         </div>

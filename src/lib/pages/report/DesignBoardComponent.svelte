@@ -4,7 +4,7 @@
     import DownloadArrowSvg from '$lib/svgs/DownloadArrowSvg.svelte';
     import type { DesignBoard } from './DesignBoardType';
     import { onMount } from 'svelte';
-    import { StagesStore } from '$lib/stores/StagesStore.svelte';
+    import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Props
     export let containers: Array<DesignBoard>;
@@ -30,9 +30,9 @@
                 if (stageDiv === null) {
                     return;
                 }
-                StagesStore.addNewStageToContainer(container.id, container.width, container.height);
-                if (index === 0 && StagesStore.state.SelectedStageId === null) {
-                    StagesStore.setSelectedStage(container.id);
+                StagesState.addNewStageToContainer(container.id, container.width, container.height);
+                if (index === 0 && StagesState.state.SelectedStageId === null) {
+                    StagesState.setSelectedStage(container.id);
                 }
             }, 0);
         });
@@ -40,6 +40,11 @@
 
     function scaledValue(scale: number, value: number): number {
         return value * (scale / 100);
+    }
+
+    function onDownloadButtonClicked() {
+        const serialized = StagesState.serializeSelectedStage();
+        console.log(serialized);
     }
 
     // Lifecycles
@@ -64,7 +69,9 @@
                     <div class="grow"></div>
                     <div class="grow"></div>
                     <div class="flex h-full gap-x-3 text-slate-700">
-                        <DownloadArrowSvg />
+                        <button on:click={onDownloadButtonClicked}>
+                            <DownloadArrowSvg />
+                        </button>
                         <TrashSvg />
                         <AddFileSvg />
                     </div>
@@ -72,11 +79,11 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                    class="flex self-center bg-white drop-shadow-md {StagesStore.state
+                    class="flex self-center bg-white drop-shadow-md {StagesState.state
                         .SelectedStageId === cont.id
                         ? 'border border-blue-500'
                         : ''} "
-                    on:click={() => StagesStore.setSelectedStage(cont.id)}
+                    on:click={() => StagesState.setSelectedStage(cont.id)}
                 >
                     <div
                         id={cont.id}
