@@ -1,6 +1,6 @@
 <script lang="ts">
     import Masonry from 'svelte-bricks';
-    import { WorkspaceStore } from '$lib/stores/WorkspaceStore.svelte';
+    import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
 
     // Locals
@@ -47,7 +47,7 @@
     }
 
     function onXButtonClicked() {
-        WorkspaceStore.clearLeftBarSelection();
+        Workspace.clearLeftBarSelection();
     }
 
     function masonryItems(uploadedItems: string[], imageListItems: string[]): string[] {

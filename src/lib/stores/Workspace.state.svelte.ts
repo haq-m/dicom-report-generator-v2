@@ -6,15 +6,15 @@ type SideBarContentSelection = {
     topBarSelection: TopBarContentTypeSelection | null;
 };
 
-export interface WorkspaceStoreType {
+export interface WorkspaceStateType {
     SideBarSelection: SideBarContentSelection;
     CanvasScale: number;
 }
 
-export const WorkspaceStore = createWorkspaceStore();
+export const Workspace = createWorkspaceState();
 
-export function createWorkspaceStore() {
-    const state = $state<WorkspaceStoreType>({
+export function createWorkspaceState() {
+    const state = $state<WorkspaceStateType>({
         SideBarSelection: {
             leftBarSelection: null,
             topBarSelection: null

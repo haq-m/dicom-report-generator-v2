@@ -7,37 +7,46 @@
     import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Props
-    export let containers: Array<DesignBoard>;
-    export let canvasScale: number;
+    interface Props {
+        containers: Array<DesignBoard>;
+        canvasScale: number;
+    }
+    const { containers, canvasScale }: Props = $props();
 
     // Locals
     let mounted: boolean = false;
 
     // Reactivity
-    $: onContainersChanged(containers);
-
-    // Functions
-    function onContainersChanged(list: Array<DesignBoard>) {
+    $effect(() => {
         if (!mounted) {
             return;
         }
 
         // Queue the creation of KonvaJS stage. This ensures the stage is created after
         // the div is created
-        list.forEach((container, index) => {
+        containers.forEach((container, index) => {
             setTimeout(() => {
                 const stageDiv = document.getElementById(container.id);
                 if (stageDiv === null) {
                     return;
                 }
-                StagesState.addNewStageToContainer(container.id, container.width, container.height);
+                if (container.stageData !== null) {
+                    StagesState.deserializeStage(container.stageData, container.id);
+                } else {
+                    StagesState.addNewStageToContainer(
+                        container.id,
+                        container.width,
+                        container.height
+                    );
+                }
                 if (index === 0 && StagesState.state.SelectedStageId === null) {
                     StagesState.setSelectedStage(container.id);
                 }
             }, 0);
         });
-    }
+    });
 
+    // Functions
     function scaledValue(scale: number, value: number): number {
         return value * (scale / 100);
     }
@@ -69,7 +78,7 @@
                     <div class="grow"></div>
                     <div class="grow"></div>
                     <div class="flex h-full gap-x-3 text-slate-700">
-                        <button on:click={onDownloadButtonClicked}>
+                        <button onclick={onDownloadButtonClicked}>
                             <DownloadArrowSvg />
                         </button>
                         <TrashSvg />
@@ -83,7 +92,7 @@
                         .SelectedStageId === cont.id
                         ? 'border border-blue-500'
                         : ''} "
-                    on:click={() => StagesState.setSelectedStage(cont.id)}
+                    onclick={() => StagesState.setSelectedStage(cont.id)}
                 >
                     <div
                         id={cont.id}

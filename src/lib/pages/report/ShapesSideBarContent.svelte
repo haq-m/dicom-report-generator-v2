@@ -3,12 +3,12 @@
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
     import LineSvg from '$lib/svgs/LineSvg.svelte';
     import SquareSvg from '$lib/svgs/SquareSvg.svelte';
-    import { WorkspaceStore } from '$lib/stores/WorkspaceStore.svelte';
+    import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Functions
     function onXButtonClicked() {
-        WorkspaceStore.clearLeftBarSelection();
+        Workspace.clearLeftBarSelection();
     }
 
     function onSquareButtonClicked() {

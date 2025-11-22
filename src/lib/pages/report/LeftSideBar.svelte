@@ -1,8 +1,8 @@
 <script lang="ts">
     import {
-        WorkspaceStore,
+        Workspace,
         type LeftSideBarContentTypeSelection
-    } from '$lib/stores/WorkspaceStore.svelte';
+    } from '$lib/stores/Workspace.state.svelte';
     import DcmSvg from '$lib/svgs/DcmSvg.svelte';
     import ImageSvg from '$lib/svgs/ImageSvg.svelte';
     import ShapeSvg from '$lib/svgs/ShapeSvg.svelte';
@@ -10,20 +10,21 @@
     import DcmFilesSideBarContent from './DcmFilesSideBarContent.svelte';
     import ImagesSideBarContent from './ImagesSideBarContent.svelte';
     import ShapesSideBarContent from './ShapesSideBarContent.svelte';
+    import TemplatesSideBarContent from './TemplatesSideBarContent.svelte';
 
     // Locals
     const expandDrawer = $derived(
-        WorkspaceStore.state.SideBarSelection.leftBarSelection !== null ||
-            WorkspaceStore.state.SideBarSelection.topBarSelection !== null
+        Workspace.state.SideBarSelection.leftBarSelection !== null ||
+            Workspace.state.SideBarSelection.topBarSelection !== null
     );
 
     // Functions
     function onClick(type: LeftSideBarContentTypeSelection) {
-        if (WorkspaceStore.state.SideBarSelection.leftBarSelection === type) {
-            WorkspaceStore.clearLeftBarSelection();
+        if (Workspace.state.SideBarSelection.leftBarSelection === type) {
+            Workspace.clearLeftBarSelection();
             return;
         }
-        WorkspaceStore.setLeftSideBarContentTypeSelection(type);
+        Workspace.setLeftSideBarContentTypeSelection(type);
     }
 </script>
 
@@ -47,14 +48,14 @@
         </button>
     </div>
     {#if expandDrawer}
-        {#if WorkspaceStore.state.SideBarSelection.leftBarSelection === 'Shapes'}
+        {#if Workspace.state.SideBarSelection.leftBarSelection === 'Shapes'}
             <ShapesSideBarContent />
-        {:else if WorkspaceStore.state.SideBarSelection.leftBarSelection === 'Images'}
+        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'Images'}
             <ImagesSideBarContent />
-        {:else if WorkspaceStore.state.SideBarSelection.leftBarSelection === 'DcmFiles'}
+        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'DcmFiles'}
             <DcmFilesSideBarContent />
         {:else}
-            <div>{WorkspaceStore.state.SideBarSelection.leftBarSelection}</div>
+            <TemplatesSideBarContent />
         {/if}
     {/if}
 </aside>
