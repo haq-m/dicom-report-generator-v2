@@ -91,6 +91,12 @@ function createStagesState() {
         return stage.toJSON();
     }
 
+    function deserializeStage(json: string, containerId: string) {
+        const stage = Konva.Stage.create(json, containerId) as Konva.Stage;
+        initTransformer(stage);
+        state.Stages.set(containerId, stage);
+    }
+
     // Shapes
     function addSquareToSelectedStage(fillColor: string): 'Ok' | 'Error' {
         const stage = getSelectedStage();
@@ -393,6 +399,7 @@ function createStagesState() {
         clearSelectedStage,
         serializeSelectedStage,
         serializeStage,
+        deserializeStage,
 
         // Shapes
         addSquareToSelectedStage,

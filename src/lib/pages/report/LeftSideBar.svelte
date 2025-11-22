@@ -10,6 +10,7 @@
     import DcmFilesSideBarContent from './DcmFilesSideBarContent.svelte';
     import ImagesSideBarContent from './ImagesSideBarContent.svelte';
     import ShapesSideBarContent from './ShapesSideBarContent.svelte';
+    import TemplatesSideBarContent from './TemplatesSideBarContent.svelte';
 
     // Locals
     const expandDrawer = $derived(
@@ -54,7 +55,7 @@
         {:else if Workspace.state.SideBarSelection.leftBarSelection === 'DcmFiles'}
             <DcmFilesSideBarContent />
         {:else}
-            <div>{Workspace.state.SideBarSelection.leftBarSelection}</div>
+            <TemplatesSideBarContent />
         {/if}
     {/if}
 </aside>

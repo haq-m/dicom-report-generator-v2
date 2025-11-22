@@ -1,18 +1,36 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { untrack } from 'svelte';
     import DesignBoardComponent from './DesignBoardComponent.svelte';
     import type { DesignBoard } from './DesignBoardType';
     import LeftSideBar from './LeftSideBar.svelte';
     import TopSideBar from './TopSideBar.svelte';
+    import { Templates } from '$lib/stores/Templates.state.svelte';
 
     // Locals
-    let containers: Array<DesignBoard> = [];
+    let containers: Array<DesignBoard> = $state([]);
     let canvasScale: number = 100;
 
-    onMount(() => {
-        containers.push({ id: 'stage-1', width: 1080, height: 1920 });
-        containers.push({ id: 'stage-2', width: 500, height: 500 });
-        containers = containers;
+    // Reactivity
+    $effect(() => {
+        const selectedItem = Templates.state.SelectedItem;
+        untrack(() => {
+            containers = [];
+        });
+        if (selectedItem === null) {
+            untrack(() => {
+                containers.push({ id: 'stage-1', width: 1080, height: 1920, stageData: null });
+            });
+            return;
+        }
+
+        untrack(() => {
+            containers.push({
+                id: 'stage-1',
+                width: 1080,
+                height: 1920,
+                stageData: selectedItem.Stage
+            });
+        });
     });
 </script>
 
