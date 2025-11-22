@@ -6,6 +6,8 @@ const BACKGROUND_RECT: string = 'background-rect';
 const SHAPES_LAYER: string = 'shapes-layer';
 const TRANSFORMER: string = 'transformer';
 
+type Shape = 'Line' | 'Rect' | 'Circle' | 'Text' | 'MultipleShapes' | 'Image';
+
 export interface StagesStateType {
     Stages: Map<string, Konva.Stage>;
     SelectedStageId: string | null;
@@ -181,6 +183,40 @@ function createStagesState() {
         return 'Ok';
     }
 
+    async function addTextToSelectedStage(fillColor: string, fontName: string) {
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        const layer = getShapesLayer(stage);
+        if (layer === 'Error') {
+            return 'Error';
+        }
+
+        const shape = new Konva.Text({
+            x: stage.width() / 2,
+            y: 15,
+            text: 'Simple Text',
+            fontSize: 30,
+            fontFamily: 'Calibri',
+            fill: fillColor,
+            align: 'center',
+            draggable: true
+        });
+
+        await loadAndApplyFontAsync(fontName, shape);
+        layer.add(shape);
+        initShape(shape, 'Text');
+        const transformer = stage.find(`#${TRANSFORMER}`)[0];
+        if (transformer !== undefined) {
+            transformer.moveToTop();
+        }
+        initTextEdit(shape, stage);
+
+        return 'Ok';
+    }
+
     // Locals
     function getSelectedStage(): Konva.Stage | 'Error' {
         const selectedId = state.SelectedStageId;
@@ -325,6 +361,112 @@ function createStagesState() {
         });
     }
 
+    function initShape(shape: Konva.Shape, shapeType: Shape) {
+        if (shapeType === 'Text') {
+            shape.on('transform', function () {
+                shape.setAttrs({
+                    width: shape.width() * shape.scaleX(),
+                    height: shape.height() * shape.scaleY(),
+                    scaleY: 1,
+                    scaleX: 1
+                });
+            });
+        }
+
+        return 'Ok';
+    }
+
+    function initTextEdit(shape: Konva.Text, stage: Konva.Stage) {
+        shape.on('dblclick dbltap', () => {
+            shape.hide();
+
+            const textPosition = shape.absolutePosition();
+            const stageBox = stage.container().getBoundingClientRect();
+
+            const areaPosition = {
+                x: stageBox.left + textPosition.x,
+                y: stageBox.top + textPosition.y
+            };
+
+            // https://konvajs.org/docs/sandbox/Editable_Text.html
+            const textarea = document.createElement('textarea');
+            document.body.appendChild(textarea);
+
+            textarea.value = shape.text();
+            textarea.style.position = 'absolute';
+            textarea.style.top = areaPosition.y + 'px';
+            textarea.style.left = areaPosition.x + 'px';
+            textarea.style.width = shape.width() - shape.padding() * 2 + 'px';
+            textarea.style.height = shape.height() - shape.padding() * 2 + 5 + 'px';
+            textarea.style.fontSize = shape.fontSize() + 'px';
+            textarea.style.border = 'none';
+            textarea.style.padding = '0px';
+            textarea.style.margin = '0px';
+            textarea.style.overflow = 'hidden';
+            textarea.style.background = 'none';
+            textarea.style.outline = 'none';
+            textarea.style.resize = 'none';
+            textarea.style.lineHeight = shape.lineHeight().toString();
+            textarea.style.fontFamily = shape.fontFamily();
+            textarea.style.transformOrigin = 'left top';
+            textarea.style.textAlign = shape.align();
+            textarea.style.color = shape.fill() as string;
+
+            const rotation = shape.rotation();
+            let transform = '';
+            if (rotation) {
+                transform += 'rotateZ(' + rotation + 'deg)';
+            }
+            transform += 'translateY(-' + 2 + 'px)';
+            textarea.style.transform = transform;
+
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 3 + 'px';
+
+            textarea.focus();
+
+            function removeTextarea() {
+                textarea.parentNode?.removeChild(textarea);
+                window.removeEventListener('click', handleOutsideClick);
+                shape.show();
+            }
+
+            function setTextareaWidth(newWidth: number) {
+                if (!newWidth) {
+                    newWidth = shape.text.length * shape.fontSize();
+                }
+                textarea.style.width = newWidth + 'px';
+            }
+
+            textarea.addEventListener('keydown', function (e) {
+                if (e.code === 'Enter' && !e.shiftKey) {
+                    shape.text(textarea.value);
+                    removeTextarea();
+                }
+                if (e.code === 'Escape') {
+                    removeTextarea();
+                }
+            });
+
+            textarea.addEventListener('keydown', function () {
+                const scale = shape.getAbsoluteScale().x;
+                setTextareaWidth(shape.width() * scale);
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + shape.fontSize() + 'px';
+            });
+
+            function handleOutsideClick(e: Event) {
+                if (e.target !== textarea) {
+                    shape.text(textarea.value);
+                    removeTextarea();
+                }
+            }
+            setTimeout(() => {
+                window.addEventListener('click', handleOutsideClick);
+            });
+        });
+    }
+
     function getClientRect(rotatedBox: RectConfig) {
         const { x, y, width, height } = rotatedBox;
         const rad = rotatedBox.rotation;
@@ -386,6 +528,28 @@ function createStagesState() {
         };
     }
 
+    async function loadAndApplyFontAsync(fontName: string, textNode: Konva.Text) {
+        const url = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700&display=swap`;
+        const linkId = `google-font-${fontName.replace(/\s+/g, '-')}`;
+
+        if (!document.getElementById(linkId)) {
+            const link = document.createElement('link');
+            link.id = linkId;
+            link.rel = 'stylesheet';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        try {
+            await document.fonts.load(`400 normal 1em "${fontName}"`);
+            textNode.fontFamily(fontName);
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(`Font failed to load: ${fontName}`, error);
+            textNode.fontFamily('Arial, sans-serif');
+        }
+    }
+
     return {
         // Getters
         get state() {
@@ -404,6 +568,7 @@ function createStagesState() {
         // Shapes
         addSquareToSelectedStage,
         addCircleToSelectedStage,
-        addLineToSelectedStage
+        addLineToSelectedStage,
+        addTextToSelectedStage
     };
 }

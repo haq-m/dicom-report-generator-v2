@@ -7,10 +7,12 @@
     import ImageSvg from '$lib/svgs/ImageSvg.svelte';
     import ShapeSvg from '$lib/svgs/ShapeSvg.svelte';
     import TemplateSvg from '$lib/svgs/TemplateSvg.svelte';
+    import TextSvg from '$lib/svgs/TextSvg.svelte';
     import DcmFilesSideBarContent from './DcmFilesSideBarContent.svelte';
     import ImagesSideBarContent from './ImagesSideBarContent.svelte';
     import ShapesSideBarContent from './ShapesSideBarContent.svelte';
     import TemplatesSideBarContent from './TemplatesSideBarContent.svelte';
+    import TextsSideBarContent from './TextsSideBarContent.svelte';
 
     // Locals
     const expandDrawer = $derived(
@@ -37,9 +39,13 @@
         <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Templates')}>
             <TemplateSvg />
         </button>
+        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Texts')}>
+            <TextSvg />
+        </button>
         <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Shapes')}>
             <ShapeSvg />
         </button>
+
         <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('DcmFiles')}>
             <DcmSvg />
         </button>
@@ -50,6 +56,8 @@
     {#if expandDrawer}
         {#if Workspace.state.SideBarSelection.leftBarSelection === 'Shapes'}
             <ShapesSideBarContent />
+        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'Texts'}
+            <TextsSideBarContent />
         {:else if Workspace.state.SideBarSelection.leftBarSelection === 'Images'}
             <ImagesSideBarContent />
         {:else if Workspace.state.SideBarSelection.leftBarSelection === 'DcmFiles'}

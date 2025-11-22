@@ -1,4 +1,9 @@
-export type LeftSideBarContentTypeSelection = 'Shapes' | 'Images' | 'Templates' | 'DcmFiles';
+export type LeftSideBarContentTypeSelection =
+    | 'Shapes'
+    | 'Images'
+    | 'Templates'
+    | 'DcmFiles'
+    | 'Texts';
 export type TopBarContentTypeSelection = 'Colors' | 'LineStrokes';
 
 type SideBarContentSelection = {

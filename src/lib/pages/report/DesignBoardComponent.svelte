@@ -18,10 +18,6 @@
 
     // Reactivity
     $effect(() => {
-        if (!mounted) {
-            return;
-        }
-
         // Queue the creation of KonvaJS stage. This ensures the stage is created after
         // the div is created
         containers.forEach((container, index) => {
