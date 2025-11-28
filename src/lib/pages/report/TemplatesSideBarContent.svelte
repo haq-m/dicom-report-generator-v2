@@ -26,6 +26,7 @@
 
     <Masonry
         items={Templates.state.Items}
+        getId={(item) => item.Stage}
         animate={false}
         minColWidth={80}
         maxColWidth={200}

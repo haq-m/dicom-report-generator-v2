@@ -93,8 +93,21 @@ function createStagesState() {
         return stage.toJSON();
     }
 
-    function deserializeStage(json: string, containerId: string) {
+    async function deserializeStage(json: string, containerId: string) {
         const stage = Konva.Stage.create(json, containerId) as Konva.Stage;
+        for (const child of stage.children) {
+            for (const childChild of child.getChildren()) {
+                if (childChild instanceof Konva.Text) {
+                    const fontFamily = childChild.getAttr('fontFamily');
+                    initShape(childChild, 'Text');
+                    initTextEdit(childChild, stage);
+                    if (fontFamily) {
+                        await loadAndApplyFontAsync(fontFamily, childChild);
+                    }
+                }
+            }
+        }
+
         initTransformer(stage);
         state.Stages.set(containerId, stage);
     }
