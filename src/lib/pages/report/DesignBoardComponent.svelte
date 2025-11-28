@@ -3,7 +3,6 @@
     import TrashSvg from '$lib/svgs/TrashSvg.svelte';
     import DownloadArrowSvg from '$lib/svgs/DownloadArrowSvg.svelte';
     import type { DesignBoard } from './DesignBoardType';
-    import { onMount } from 'svelte';
     import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Props
@@ -13,15 +12,8 @@
     }
     const { containers, canvasScale }: Props = $props();
 
-    // Locals
-    let mounted: boolean = false;
-
     // Reactivity
     $effect(() => {
-        if (!mounted) {
-            return;
-        }
-
         // Queue the creation of KonvaJS stage. This ensures the stage is created after
         // the div is created
         containers.forEach((container, index) => {
@@ -55,11 +47,6 @@
         const serialized = StagesState.serializeSelectedStage();
         console.log(serialized);
     }
-
-    // Lifecycles
-    onMount(async () => {
-        mounted = true;
-    });
 </script>
 
 <div
