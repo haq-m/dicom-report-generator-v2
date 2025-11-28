@@ -1,18 +1,24 @@
-export type LeftSideBarContentTypeSelection =
-    | 'Shapes'
-    | 'Images'
-    | 'Templates'
-    | 'DcmFiles'
-    | 'Texts';
-export type TopBarContentTypeSelection = 'Colors' | 'LineStrokes';
+type Make<TypeLiteral extends string, Extras extends Record<string, unknown>> = {
+    type: TypeLiteral;
+} & Extras;
 
-type SideBarContentSelection = {
-    leftBarSelection: LeftSideBarContentTypeSelection | null;
-    topBarSelection: TopBarContentTypeSelection | null;
-};
+type Shapes = Make<'Shapes', { value: string }>;
+type Images = Make<'Images', { value: string }>;
+type Templates = Make<'Templates', { value: string; Stage?: unknown }>;
+type DcmFiles = Make<'DcmFiles', { value: string }>;
+type Texts = Make<'Texts', { value: string }>;
+type Colors = Make<'Colors', { value: string }>;
+
+export type LeftSideBarContentTypeSelection = Shapes | Images | Templates | DcmFiles | Texts;
+export type TopBarContentTypeSelection = Colors;
+
+export type SideBarSelectionType =
+    | LeftSideBarContentTypeSelection
+    | TopBarContentTypeSelection
+    | null;
 
 export interface WorkspaceStateType {
-    SideBarSelection: SideBarContentSelection;
+    SideBarSelection: SideBarSelectionType;
     CanvasScale: number;
 }
 
@@ -20,27 +26,16 @@ export const Workspace = createWorkspaceState();
 
 export function createWorkspaceState() {
     const state = $state<WorkspaceStateType>({
-        SideBarSelection: {
-            leftBarSelection: null,
-            topBarSelection: null
-        },
+        SideBarSelection: null,
         CanvasScale: 100
     });
 
-    function setLeftSideBarContentTypeSelection(type: LeftSideBarContentTypeSelection) {
-        state.SideBarSelection.leftBarSelection = type;
+    function setSideBarContentTypeSelection(type: SideBarSelectionType) {
+        state.SideBarSelection = type;
     }
 
-    function setTopBarContentTypeSelection(type: TopBarContentTypeSelection) {
-        state.SideBarSelection.topBarSelection = type;
-    }
-
-    function clearLeftBarSelection() {
-        state.SideBarSelection.leftBarSelection = null;
-    }
-
-    function clearTopBarSelection() {
-        state.SideBarSelection.topBarSelection = null;
+    function clearSideBarSelection() {
+        state.SideBarSelection = null;
     }
 
     function setCanvasScale(value: number) {
@@ -52,18 +47,13 @@ export function createWorkspaceState() {
         get state() {
             return state;
         },
-        get leftBarSelection() {
-            return state.SideBarSelection.leftBarSelection;
-        },
-        get topBarSelection() {
-            return state.SideBarSelection.topBarSelection;
+        get sideBarSelection() {
+            return state.SideBarSelection;
         },
 
         // Setters
-        setLeftSideBarContentTypeSelection,
-        setTopBarContentTypeSelection,
-        clearLeftBarSelection,
-        clearTopBarSelection,
+        setSideBarContentTypeSelection,
+        clearSideBarSelection,
         setCanvasScale
     };
 }

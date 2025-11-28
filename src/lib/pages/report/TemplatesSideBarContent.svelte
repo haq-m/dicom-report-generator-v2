@@ -7,7 +7,7 @@
 
     // Functions
     function onXButtonClicked() {
-        Workspace.clearLeftBarSelection();
+        Workspace.clearSideBarSelection();
     }
 
     function onTemplateItemClicked(template: TemplateItem) {

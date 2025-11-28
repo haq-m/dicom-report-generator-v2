@@ -47,7 +47,7 @@
     }
 
     function onXButtonClicked() {
-        Workspace.clearLeftBarSelection();
+        Workspace.clearSideBarSelection();
     }
 
     function masonryItems(uploadedItems: string[], imageListItems: string[]): string[] {
