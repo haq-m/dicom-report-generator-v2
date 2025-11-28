@@ -3,7 +3,6 @@
     import TrashSvg from '$lib/svgs/TrashSvg.svelte';
     import DownloadArrowSvg from '$lib/svgs/DownloadArrowSvg.svelte';
     import type { DesignBoard } from './DesignBoardType';
-    import { onMount } from 'svelte';
     import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Props
@@ -12,9 +11,6 @@
         canvasScale: number;
     }
     const { containers, canvasScale }: Props = $props();
-
-    // Locals
-    let mounted: boolean = false;
 
     // Reactivity
     $effect(() => {
@@ -51,11 +47,6 @@
         const serialized = StagesState.serializeSelectedStage();
         console.log(serialized);
     }
-
-    // Lifecycles
-    onMount(async () => {
-        mounted = true;
-    });
 </script>
 
 <div
