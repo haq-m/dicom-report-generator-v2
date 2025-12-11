@@ -2,12 +2,12 @@ type Make<TypeLiteral extends string, Extras extends Record<string, unknown>> = 
     type: TypeLiteral;
 } & Extras;
 
-type Shapes = Make<'Shapes', { value: string }>;
-type Images = Make<'Images', { value: string }>;
-type Templates = Make<'Templates', { value: string; Stage?: unknown }>;
-type DcmFiles = Make<'DcmFiles', { value: string }>;
-type Texts = Make<'Texts', { value: string }>;
-type Colors = Make<'Colors', { value: string }>;
+type Shapes = Make<'Shapes', { selection: 'Line' | 'Square' | 'Circle' | null }>;
+type Images = Make<'Images', { src: string | null }>;
+type Templates = Make<'Templates', { selection: { id: string; stage: string } | null }>;
+type DcmFiles = Make<'DcmFiles', { selection: string | null }>;
+type Texts = Make<'Texts', { selection: string | null }>;
+type Colors = Make<'Colors', { selectedColor: string | null }>;
 
 export type LeftSideBarContentTypeSelection = Shapes | Images | Templates | DcmFiles | Texts;
 export type TopBarContentTypeSelection = Colors;

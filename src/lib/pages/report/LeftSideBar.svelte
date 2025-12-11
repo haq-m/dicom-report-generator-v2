@@ -36,32 +36,32 @@
     <div class="flex w-14 flex-col">
         <button
             class="flex h-14 w-14 p-2 text-slate-500"
-            onclick={() => onClick({ type: 'Templates', value: '' })}
+            onclick={() => onClick({ type: 'Templates', selection: null })}
         >
             <TemplateSvg />
         </button>
         <button
             class="flex h-14 w-14 p-2 text-slate-500"
-            onclick={() => onClick({ type: 'Texts', value: '' })}
+            onclick={() => onClick({ type: 'Texts', selection: null })}
         >
             <TextSvg />
         </button>
         <button
             class="flex h-14 w-14 p-2 text-slate-500"
-            onclick={() => onClick({ type: 'Shapes', value: '' })}
+            onclick={() => onClick({ type: 'Shapes', selection: null })}
         >
             <ShapeSvg />
         </button>
 
         <button
             class="flex h-14 w-14 p-2 text-slate-500"
-            onclick={() => onClick({ type: 'DcmFiles', value: '' })}
+            onclick={() => onClick({ type: 'DcmFiles', selection: null })}
         >
             <DcmSvg />
         </button>
         <button
             class="flex h-14 w-14 p-2 text-slate-500"
-            onclick={() => onClick({ type: 'Images', value: '' })}
+            onclick={() => onClick({ type: 'Images', src: null })}
         >
             <ImageSvg />
         </button>
