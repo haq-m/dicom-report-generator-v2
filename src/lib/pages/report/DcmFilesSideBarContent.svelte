@@ -47,7 +47,7 @@
     }
 
     function onXButtonClicked() {
-        Workspace.clearLeftBarSelection();
+        Workspace.clearSideBarSelection();
     }
 </script>
 

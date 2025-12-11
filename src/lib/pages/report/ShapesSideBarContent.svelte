@@ -8,7 +8,7 @@
 
     // Functions
     function onXButtonClicked() {
-        Workspace.clearLeftBarSelection();
+        Workspace.clearSideBarSelection();
     }
 
     function onSquareButtonClicked() {

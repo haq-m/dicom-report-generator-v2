@@ -8,6 +8,7 @@
     import ShapeSvg from '$lib/svgs/ShapeSvg.svelte';
     import TemplateSvg from '$lib/svgs/TemplateSvg.svelte';
     import TextSvg from '$lib/svgs/TextSvg.svelte';
+    import ColorPickerSideBarContent from './ColorPickerSideBarContent.svelte';
     import DcmFilesSideBarContent from './DcmFilesSideBarContent.svelte';
     import ImagesSideBarContent from './ImagesSideBarContent.svelte';
     import ShapesSideBarContent from './ShapesSideBarContent.svelte';
@@ -15,18 +16,15 @@
     import TextsSideBarContent from './TextsSideBarContent.svelte';
 
     // Locals
-    const expandDrawer = $derived(
-        Workspace.state.SideBarSelection.leftBarSelection !== null ||
-            Workspace.state.SideBarSelection.topBarSelection !== null
-    );
+    const expandDrawer = $derived(Workspace.state.SideBarSelection !== null);
 
     // Functions
     function onClick(type: LeftSideBarContentTypeSelection) {
-        if (Workspace.state.SideBarSelection.leftBarSelection === type) {
-            Workspace.clearLeftBarSelection();
+        if (Workspace.state.SideBarSelection === type) {
+            Workspace.clearSideBarSelection();
             return;
         }
-        Workspace.setLeftSideBarContentTypeSelection(type);
+        Workspace.setSideBarContentTypeSelection(type);
     }
 </script>
 
@@ -36,31 +34,48 @@
     class:w-14={!expandDrawer}
 >
     <div class="flex w-14 flex-col">
-        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Templates')}>
+        <button
+            class="flex h-14 w-14 p-2 text-slate-500"
+            onclick={() => onClick({ type: 'Templates', value: '' })}
+        >
             <TemplateSvg />
         </button>
-        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Texts')}>
+        <button
+            class="flex h-14 w-14 p-2 text-slate-500"
+            onclick={() => onClick({ type: 'Texts', value: '' })}
+        >
             <TextSvg />
         </button>
-        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Shapes')}>
+        <button
+            class="flex h-14 w-14 p-2 text-slate-500"
+            onclick={() => onClick({ type: 'Shapes', value: '' })}
+        >
             <ShapeSvg />
         </button>
 
-        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('DcmFiles')}>
+        <button
+            class="flex h-14 w-14 p-2 text-slate-500"
+            onclick={() => onClick({ type: 'DcmFiles', value: '' })}
+        >
             <DcmSvg />
         </button>
-        <button class="flex h-14 w-14 p-2 text-slate-500" onclick={() => onClick('Images')}>
+        <button
+            class="flex h-14 w-14 p-2 text-slate-500"
+            onclick={() => onClick({ type: 'Images', value: '' })}
+        >
             <ImageSvg />
         </button>
     </div>
     {#if expandDrawer}
-        {#if Workspace.state.SideBarSelection.leftBarSelection === 'Shapes'}
+        {#if Workspace.state.SideBarSelection?.type === 'Shapes'}
             <ShapesSideBarContent />
-        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'Texts'}
+        {:else if Workspace.state.SideBarSelection?.type === 'Colors'}
+            <ColorPickerSideBarContent />
+        {:else if Workspace.state.SideBarSelection?.type === 'Texts'}
             <TextsSideBarContent />
-        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'Images'}
+        {:else if Workspace.state.SideBarSelection?.type === 'Images'}
             <ImagesSideBarContent />
-        {:else if Workspace.state.SideBarSelection.leftBarSelection === 'DcmFiles'}
+        {:else if Workspace.state.SideBarSelection?.type === 'DcmFiles'}
             <DcmFilesSideBarContent />
         {:else}
             <TemplatesSideBarContent />

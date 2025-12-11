@@ -17,7 +17,7 @@
     }
 
     function onXButtonClicked() {
-        Workspace.clearLeftBarSelection();
+        Workspace.clearSideBarSelection();
     }
 
     // Lifecycles
