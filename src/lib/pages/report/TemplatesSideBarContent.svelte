@@ -4,6 +4,7 @@
     import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
     import Masonry from 'svelte-bricks';
+    import TemplateThumbnailComponent from './TemplateThumbnailComponent.svelte';
 
     // Functions
     function onXButtonClicked() {
@@ -31,9 +32,12 @@
         minColWidth={80}
         maxColWidth={200}
         gap={5}
+        class="p-1"
     >
         {#snippet children({ item })}
-            <button on:click={() => onTemplateItemClicked(item)}>{item.Thumbnail}</button>
+            <button class="border border-gray-200 p-1" on:click={() => onTemplateItemClicked(item)}>
+                <TemplateThumbnailComponent stageData={item.Stage} alt={item.Name} />
+            </button>
         {/snippet}
     </Masonry>
 </div>

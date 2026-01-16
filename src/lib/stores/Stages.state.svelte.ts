@@ -109,6 +109,18 @@ function createStagesState() {
                         await loadAndApplyFontAsync(fontFamily, childChild);
                     }
                 }
+
+                if (childChild instanceof Konva.Rect) {
+                    initShape(childChild, 'Rect');
+                }
+
+                if (childChild instanceof Konva.Line) {
+                    initShape(childChild, 'Line');
+                }
+
+                if (childChild instanceof Konva.Circle) {
+                    initShape(childChild, 'Circle');
+                }
             }
         }
 
@@ -169,7 +181,6 @@ function createStagesState() {
             transformer.moveToTop();
         }
         initShape(shape, 'Rect');
-
         return 'Ok';
     }
 
@@ -445,6 +456,45 @@ function createStagesState() {
         return undefined;
     }
 
+    function deleteSelectedShapes(): 'Ok' | 'Error' {
+        const selection = state.SelectedShapes;
+        if (selection === null || !selection.shapes || selection.shapes.length === 0) {
+            return 'Error';
+        }
+
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        // Destroy each selected shape
+        selection.shapes.forEach((shape) => {
+            try {
+                shape.destroy();
+            } catch (e) {
+                // ignore individual destroy failures
+            }
+        });
+
+        // Clear selection state
+        state.SelectedShapes = null;
+
+        // Clear transformer nodes and hide it
+        const transformer = stage.findOne(`#${TRANSFORMER}`);
+        if (transformer && transformer instanceof Konva.Transformer) {
+            transformer.nodes([]);
+            transformer.hide();
+        }
+
+        // Redraw shapes layer if available
+        const layer = getShapesLayer(stage);
+        if (layer !== 'Error') {
+            layer.batchDraw();
+        }
+
+        return 'Ok';
+    }
+
     function initShape(shape: Konva.Shape, shapeType: Shape) {
         shape.on('click tap', () => {
             if (state.SelectedShapes === null || state.SelectedShapes.shapes.length === 0) {
@@ -681,6 +731,7 @@ function createStagesState() {
         setBgFillColorToSelectedStage,
         isMultipleShapesSelected,
         selectedShapesType,
+        deleteSelectedShapes,
 
         // Shapes
         addSquareToSelectedStage,

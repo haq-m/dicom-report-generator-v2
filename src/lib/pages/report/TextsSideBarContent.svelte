@@ -12,8 +12,7 @@
 
     // Functions
     async function onTextFontClicked(fontName: string) {
-        console.log('ADD TEXT', fontName);
-        StagesState.addTextToSelectedStage('#0000FF', fontName);
+        StagesState.addTextToSelectedStage('#000000', fontName);
     }
 
     function onXButtonClicked() {
@@ -22,7 +21,7 @@
 
     // Lifecycles
     onMount(() => {
-        fonts = (FontsJson.items as unknown as FontsData).splice(0, 30);
+        fonts = (FontsJson.items as unknown as FontsData).slice(30, 60);
     });
 </script>
 

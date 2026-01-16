@@ -1,6 +1,6 @@
 export interface TemplateItem {
+    Name: string;
     Stage: string;
-    Thumbnail: string;
 }
 
 const template1: string = `{
@@ -230,13 +230,212 @@ const template2: string = `{
   ]
 }`;
 
-export const testTemplates: Array<TemplateItem> = [
+const template3: string = `{
+  "attrs": {
+    "width": 1080,
+    "height": 1920
+  },
+  "className": "Stage",
+  "children": [
     {
-        Stage: template1,
-        Thumbnail: 'Thumbnail1'
+      "attrs": {
+        "id": "background-layer"
+      },
+      "className": "Layer",
+      "children": [
+        {
+          "attrs": {
+            "id": "background-rect",
+            "width": 1080,
+            "height": 1920,
+            "fill": "white"
+          },
+          "className": "Rect"
+        }
+      ]
     },
     {
-        Stage: template2,
-        Thumbnail: 'Template with text'
+      "attrs": {
+        "id": "shapes-layer"
+      },
+      "className": "Layer",
+      "children": [
+        {
+          "attrs": {
+            "x": 801,
+            "y": 63,
+            "text": "Report",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#000000",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 46,
+            "y": 201,
+            "text": "Your Name",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#000000",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 46,
+            "y": 154,
+            "text": "Company Name",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#000000",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 47,
+            "y": 237,
+            "text": "City, State Zip",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#000000",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 51,
+            "y": 282,
+            "text": "Country",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#000000",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 7.999999999999992,
+            "y": 360.9999999999982,
+            "width": 50,
+            "height": 50,
+            "fill": "#737373",
+            "draggable": true,
+            "scaleX": 21.3,
+            "scaleY": 0.9999999999999974
+          },
+          "className": "Rect"
+        },
+        {
+          "attrs": {
+            "x": 27,
+            "y": 372,
+            "text": "Images",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#D9D9D9",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 6.99999999999999,
+            "y": 899.9999999999978,
+            "width": 50,
+            "height": 50,
+            "fill": "#737373",
+            "draggable": true,
+            "scaleX": 21.33999999999999,
+            "scaleY": 0.9999999999999946
+          },
+          "className": "Rect"
+        },
+        {
+          "attrs": {
+            "x": 26,
+            "y": 910,
+            "text": "DICOM Tags",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#D9D9D9",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "x": 8.999999999999979,
+            "y": 1408.9999999999918,
+            "width": 50,
+            "height": 50,
+            "fill": "#737373",
+            "draggable": true,
+            "scaleX": 21.28,
+            "scaleY": 0.999999999999997
+          },
+          "className": "Rect"
+        },
+        {
+          "attrs": {
+            "x": 23,
+            "y": 1418,
+            "text": "NOTES",
+            "fontSize": 30,
+            "fontFamily": "Alef",
+            "fill": "#D9D9D9",
+            "align": "center",
+            "draggable": true
+          },
+          "className": "Text"
+        },
+        {
+          "attrs": {
+            "id": "transformer",
+            "enabledAnchors": [
+              "top-left",
+              "top-right",
+              "middle-right",
+              "middle-left",
+              "bottom-left",
+              "bottom-right"
+            ],
+            "visible": false,
+            "x": 28,
+            "y": 1413
+          },
+          "className": "Transformer"
+        }
+      ]
+    }
+  ]
+}`;
+
+export const testTemplates: Array<TemplateItem> = [
+    {
+        Name: 'Example DICOM Report',
+        Stage: template3
+    },
+    {
+        Name: 'Example 1',
+        Stage: template1
+    },
+    {
+        Name: 'Example 2',
+        Stage: template2
     }
 ];
