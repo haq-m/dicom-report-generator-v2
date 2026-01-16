@@ -7,10 +7,13 @@ const SHAPES_LAYER: string = 'shapes-layer';
 const TRANSFORMER: string = 'transformer';
 
 type Shape = 'Line' | 'Rect' | 'Circle' | 'Text' | 'MultipleShapes' | 'Image';
-
+export type SelectionType = {
+    shapes: Konva.Shape[];
+};
 export interface StagesStateType {
     Stages: Map<string, Konva.Stage>;
     SelectedStageId: string | null;
+    SelectedShapes: SelectionType | null;
 }
 
 export const StagesState = createStagesState();
@@ -18,7 +21,8 @@ export const StagesState = createStagesState();
 function createStagesState() {
     const state = $state<StagesStateType>({
         Stages: new Map(),
-        SelectedStageId: null
+        SelectedStageId: null,
+        SelectedShapes: null
     });
 
     // STAGES
@@ -105,11 +109,49 @@ function createStagesState() {
                         await loadAndApplyFontAsync(fontFamily, childChild);
                     }
                 }
+
+                if (childChild instanceof Konva.Rect) {
+                    initShape(childChild, 'Rect');
+                }
+
+                if (childChild instanceof Konva.Line) {
+                    initShape(childChild, 'Line');
+                }
+
+                if (childChild instanceof Konva.Circle) {
+                    initShape(childChild, 'Circle');
+                }
             }
         }
 
         initTransformer(stage);
         state.Stages.set(containerId, stage);
+    }
+
+    function setBgFillColorToSelectedStage(fillColor: string, opacity: number = 1): 'Ok' | 'Error' {
+        if (opacity < 0 || opacity > 1) {
+            return 'Error';
+        }
+
+        const selectedId = state.SelectedStageId;
+        if (selectedId === null) {
+            return 'Error';
+        }
+
+        const stage = state.Stages.get(selectedId);
+        if (stage === undefined) {
+            return 'Error';
+        }
+
+        const backgroundRect = stage.findOne(`#${BACKGROUND_RECT}`);
+        if (backgroundRect instanceof Konva.Rect) {
+            backgroundRect.fill(fillColor);
+            backgroundRect.opacity(opacity);
+            stage.batchDraw();
+            return 'Ok';
+        }
+
+        return 'Error';
     }
 
     // Shapes
@@ -138,7 +180,7 @@ function createStagesState() {
         if (transformer) {
             transformer.moveToTop();
         }
-
+        initShape(shape, 'Rect');
         return 'Ok';
     }
 
@@ -166,6 +208,7 @@ function createStagesState() {
         if (transformer) {
             transformer.moveToTop();
         }
+        initShape(shape, 'Circle');
         return 'Ok';
     }
 
@@ -193,6 +236,7 @@ function createStagesState() {
         if (transformer) {
             transformer.moveToTop();
         }
+        initShape(shape, 'Line');
         return 'Ok';
     }
 
@@ -374,7 +418,97 @@ function createStagesState() {
         });
     }
 
+    function isMultipleShapesSelected(): boolean {
+        // eslint-disable-next-line svelte/prefer-svelte-reactivity
+        const uniqueShapes: Set<string> = new Set();
+        state.SelectedShapes?.shapes.forEach((o) => {
+            uniqueShapes.add(o.className);
+        });
+        return uniqueShapes.size > 1;
+    }
+
+    function selectedShapesType(): Shape | undefined {
+        // eslint-disable-next-line svelte/prefer-svelte-reactivity
+        const uniqueShapes: Set<string> = new Set();
+        state.SelectedShapes?.shapes.forEach((o) => {
+            uniqueShapes.add(o.className);
+        });
+
+        if (uniqueShapes.size > 1) {
+            return 'MultipleShapes';
+        }
+        const shape = state.SelectedShapes?.shapes;
+        if (shape instanceof Konva.Rect) {
+            return 'Rect';
+        }
+        if (shape instanceof Konva.Circle) {
+            return 'Circle';
+        }
+        if (shape instanceof Konva.Line) {
+            return 'Line';
+        }
+        if (shape instanceof Konva.Text) {
+            return 'Text';
+        }
+        if (shape instanceof Konva.Image) {
+            return 'Image';
+        }
+        return undefined;
+    }
+
+    function deleteSelectedShapes(): 'Ok' | 'Error' {
+        const selection = state.SelectedShapes;
+        if (selection === null || !selection.shapes || selection.shapes.length === 0) {
+            return 'Error';
+        }
+
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        // Destroy each selected shape
+        selection.shapes.forEach((shape) => {
+            try {
+                shape.destroy();
+            } catch (e) {
+                // ignore individual destroy failures
+            }
+        });
+
+        // Clear selection state
+        state.SelectedShapes = null;
+
+        // Clear transformer nodes and hide it
+        const transformer = stage.findOne(`#${TRANSFORMER}`);
+        if (transformer && transformer instanceof Konva.Transformer) {
+            transformer.nodes([]);
+            transformer.hide();
+        }
+
+        // Redraw shapes layer if available
+        const layer = getShapesLayer(stage);
+        if (layer !== 'Error') {
+            layer.batchDraw();
+        }
+
+        return 'Ok';
+    }
+
     function initShape(shape: Konva.Shape, shapeType: Shape) {
+        shape.on('click tap', () => {
+            if (state.SelectedShapes === null || state.SelectedShapes.shapes.length === 0) {
+                state.SelectedShapes = {
+                    shapes: [shape]
+                };
+                return;
+            }
+
+            state.SelectedShapes = {
+                shapes: [shape]
+            };
+        });
+
         if (shapeType === 'Text') {
             shape.on('transform', function () {
                 shape.setAttrs({
@@ -563,6 +697,23 @@ function createStagesState() {
         }
     }
 
+    function setFillColorOfSelectedShapes(fillColor: string, opacity: number = 1): 'Ok' | 'Error' {
+        if (opacity < 0 || opacity > 1) {
+            return 'Error';
+        }
+
+        const shapes = state.SelectedShapes;
+        if (shapes === null) {
+            return 'Error';
+        }
+
+        shapes.shapes.forEach((x) => {
+            x.fill(fillColor);
+            x.opacity(opacity);
+        });
+        return 'Ok';
+    }
+
     return {
         // Getters
         get state() {
@@ -577,11 +728,16 @@ function createStagesState() {
         serializeSelectedStage,
         serializeStage,
         deserializeStage,
+        setBgFillColorToSelectedStage,
+        isMultipleShapesSelected,
+        selectedShapesType,
+        deleteSelectedShapes,
 
         // Shapes
         addSquareToSelectedStage,
         addCircleToSelectedStage,
         addLineToSelectedStage,
-        addTextToSelectedStage
+        addTextToSelectedStage,
+        setFillColorOfSelectedShapes
     };
 }

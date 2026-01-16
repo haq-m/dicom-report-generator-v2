@@ -4,6 +4,8 @@
     import DownloadArrowSvg from '$lib/svgs/DownloadArrowSvg.svelte';
     import type { DesignBoard } from './DesignBoardType';
     import { StagesState } from '$lib/stores/Stages.state.svelte';
+    import { Workspace } from '$lib/stores/Workspace.state.svelte';
+    import { untrack } from 'svelte';
 
     // Props
     interface Props {
@@ -36,6 +38,34 @@
                 }
             }, 0);
         });
+    });
+
+    const selectedColor = $derived.by(() => {
+        if (Workspace.state.SideBarSelection?.type !== 'Colors') {
+            return null;
+        }
+        return Workspace.state.SideBarSelection.selectedColor;
+    });
+
+    let prevSelectedColor: string | null = null;
+    $effect(() => {
+        if (selectedColor === prevSelectedColor) {
+            return;
+        }
+        prevSelectedColor = selectedColor;
+
+        if (selectedColor === null) {
+            return;
+        }
+
+        if (untrack(() => StagesState.state.SelectedShapes) !== null) {
+            StagesState.setFillColorOfSelectedShapes(selectedColor);
+            return;
+        }
+
+        if (untrack(() => StagesState.state.SelectedStageId) !== null) {
+            StagesState.setBgFillColorToSelectedStage(selectedColor);
+        }
     });
 
     // Functions

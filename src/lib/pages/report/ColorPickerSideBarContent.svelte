@@ -32,7 +32,7 @@
 
     // Functions
     function onColorClicked(color: string) {
-        console.log('Color Selected: ', color);
+        Workspace.setSideBarContentTypeSelection({ type: 'Colors', selectedColor: color });
     }
 
     function onXButtonClicked() {
@@ -40,6 +40,8 @@
     }
 </script>
 
+<!-- TODO: Add Color picker -->
+<!-- TODO: Add Opacity slider -->
 <div class="flex h-full flex-col">
     <div class="flex border-b border-b-gray-300 pt-2 pb-2">
         <div class="font-mono">Color</div>
