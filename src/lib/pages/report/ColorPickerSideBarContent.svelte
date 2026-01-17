@@ -42,7 +42,7 @@
 
 <!-- TODO: Add Color picker -->
 <!-- TODO: Add Opacity slider -->
-<div class="flex h-full flex-col">
+<div class="flex h-full w-full flex-col p-2">
     <div class="flex border-b border-b-gray-300 pt-2 pb-2">
         <div class="font-mono">Color</div>
         <div class="grow"></div>
@@ -56,7 +56,7 @@
             {#each solidColors as color}
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
-                    class="h-full rounded-md p-1 hover:bg-slate-100"
+                    class="flex h-full items-center justify-center self-center rounded-md border border-gray-100 p-1 hover:bg-slate-100"
                     on:click={() => {
                         onColorClicked(color);
                     }}
