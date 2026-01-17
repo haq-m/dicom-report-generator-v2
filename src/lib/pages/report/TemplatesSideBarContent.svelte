@@ -16,7 +16,7 @@
     }
 </script>
 
-<div class="flex h-full flex-col">
+<div class="flex h-full w-full flex-col">
     <div class="flex border-b border-b-gray-300 pt-2 pb-2">
         <div class="font-mono">Templates</div>
         <div class="grow"></div>
@@ -27,7 +27,7 @@
 
     <Masonry
         items={Templates.state.Items}
-        getId={(item) => item.Stage}
+        getId={(item) => item.Name}
         animate={false}
         minColWidth={80}
         maxColWidth={200}

@@ -51,7 +51,7 @@
     }
 </script>
 
-<div class="flex h-full w-full flex-col p-2">
+<div class="flex h-full w-full flex-col">
     <div class="flex h-10 items-center justify-center font-medium">
         <div class="text-lg">DICOM Files</div>
         <div class="grow"></div>

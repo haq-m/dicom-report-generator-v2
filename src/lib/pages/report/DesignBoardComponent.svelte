@@ -1,11 +1,11 @@
 <script lang="ts">
-    import AddFileSvg from '$lib/svgs/AddFileSvg.svelte';
-    import TrashSvg from '$lib/svgs/TrashSvg.svelte';
     import DownloadArrowSvg from '$lib/svgs/DownloadArrowSvg.svelte';
     import type { DesignBoard } from './DesignBoardType';
     import { StagesState } from '$lib/stores/Stages.state.svelte';
     import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import { untrack } from 'svelte';
+    import FloppyDiskSvg from '$lib/svgs/FloppyDiskSvg.svelte';
+    import { Templates } from '$lib/stores/Templates.state.svelte';
 
     // Props
     interface Props {
@@ -77,6 +77,12 @@
         const serialized = StagesState.serializeSelectedStage();
         console.log(serialized);
     }
+
+    function onFloppyDiskButtonClicked() {
+        const randomUid = crypto.randomUUID();
+        const serialized = StagesState.serializeSelectedStage();
+        Templates.saveStageToStorage(randomUid, serialized);
+    }
 </script>
 
 <div
@@ -86,20 +92,21 @@
         {#each containers as cont, i (cont.id)}
             <div class="item-center flex flex-col self-center py-2">
                 <div
-                    class="flex h-8 w-full self-center py-1.5"
+                    class="flex h-9 w-full self-center py-1.5"
                     style="width:{scaledValue(canvasScale, cont.width)}px;"
                 >
                     <div class="h-full justify-center self-center text-center font-mono text-sm">
                         Page {i + 1}
                     </div>
                     <div class="grow"></div>
-                    <div class="grow"></div>
-                    <div class="flex h-full gap-x-3 text-slate-700">
-                        <button onclick={onDownloadButtonClicked}>
+                    <div class="flex h-full w-16 flex-row text-slate-700">
+                        <button class="flex h-full" onclick={onDownloadButtonClicked}>
                             <DownloadArrowSvg />
                         </button>
-                        <TrashSvg />
-                        <AddFileSvg />
+                        <div class="grow"></div>
+                        <button class="flex h-full" onclick={onFloppyDiskButtonClicked}>
+                            <FloppyDiskSvg />
+                        </button>
                     </div>
                 </div>
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
