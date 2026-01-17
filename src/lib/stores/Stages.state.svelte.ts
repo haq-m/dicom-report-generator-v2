@@ -714,6 +714,53 @@ function createStagesState() {
         return 'Ok';
     }
 
+    async function addImageToSelectedStageAsync(src: string): Promise<'Ok' | 'Error'> {
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        const layer = getShapesLayer(stage);
+        if (layer === 'Error') {
+            return 'Error';
+        }
+
+        const img = await loadImage(src);
+        const originalWidth = img.width;
+        const originalHeight = img.height;
+        const targetWidth = 100;
+        const aspectRatio = originalWidth / originalHeight;
+        const calculatedHeight = targetWidth / aspectRatio;
+        const shape = new Konva.Image({
+            image: img,
+            x: stage.width() / 2,
+            y: stage.height() / 2,
+            width: targetWidth,
+            height: calculatedHeight,
+            draggable: true,
+            originalSrc: src
+        });
+
+        layer.add(shape);
+        initShape(shape, 'Image');
+        const transformer = stage.find(`#${TRANSFORMER}`)[0];
+        if (transformer) {
+            transformer.moveToTop();
+        }
+        return 'Ok';
+    }
+
+    function loadImage(src: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error(`Failed to load image.`));
+            img.src = src;
+            return img;
+        });
+    }
+
     return {
         // Getters
         get state() {
@@ -738,6 +785,7 @@ function createStagesState() {
         addCircleToSelectedStage,
         addLineToSelectedStage,
         addTextToSelectedStage,
-        setFillColorOfSelectedShapes
+        setFillColorOfSelectedShapes,
+        addImageToSelectedStageAsync
     };
 }
