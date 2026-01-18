@@ -14,6 +14,9 @@ export interface StagesStateType {
     Stages: Map<string, Konva.Stage>;
     SelectedStageId: string | null;
     SelectedShapes: SelectionType | null;
+    MenuList: {
+        pos: { x: number; y: number };
+    } | null;
 }
 
 export const StagesState = createStagesState();
@@ -22,7 +25,8 @@ function createStagesState() {
     const state = $state<StagesStateType>({
         Stages: new Map(),
         SelectedStageId: null,
-        SelectedShapes: null
+        SelectedShapes: null,
+        MenuList: null
     });
 
     // STAGES
@@ -64,11 +68,22 @@ function createStagesState() {
         stage.add(shapesLayer);
 
         // 4. Init events
+        initStageEvents(stage);
         initTransformer(stage);
 
         // 5. Update state
         state.Stages.set(containerId, stage);
         return stage;
+    }
+
+    function initStageEvents(stage: Konva.Stage) {
+        stage.on('click tap', (e) => {
+            const targetId = e.target.id();
+            if (targetId !== BACKGROUND_RECT) {
+                return;
+            }
+            state.MenuList = null;
+        });
     }
 
     function setSelectedStage(stageId: string) {
@@ -124,6 +139,7 @@ function createStagesState() {
             }
         }
 
+        initStageEvents(stage);
         initTransformer(stage);
         state.Stages.set(containerId, stage);
     }
@@ -497,6 +513,7 @@ function createStagesState() {
 
     function initShape(shape: Konva.Shape, shapeType: Shape) {
         shape.on('click tap', () => {
+            console.log('CLICK TAP');
             if (state.SelectedShapes === null || state.SelectedShapes.shapes.length === 0) {
                 state.SelectedShapes = {
                     shapes: [shape]
@@ -507,7 +524,16 @@ function createStagesState() {
             state.SelectedShapes = {
                 shapes: [shape]
             };
+            state.ShowMenuList = false;
         });
+
+        if (shapeType === 'Image') {
+            shape.on('contextmenu', (e) => {
+                e.evt.preventDefault();
+                console.log('RIGHT CLICK');
+                state.MenuList = { pos: { x: e.evt.clientX, y: e.evt.clientY } };
+            });
+        }
 
         if (shapeType === 'Text') {
             shape.on('transform', function () {

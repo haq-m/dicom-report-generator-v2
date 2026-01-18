@@ -135,4 +135,15 @@
             </div>
         {/each}
     </div>
+    {#if StagesState.state.MenuList !== null}
+        <div
+            class="absolute w-40 rounded-sm bg-gray-200 p-1"
+            style="top: {StagesState.state.MenuList.pos.y}px; left: {StagesState.state.MenuList.pos
+                .x}px;"
+            onclick={(e) => e.stopPropagation()}
+            role="menu"
+        >
+            <div class="cursor-default rounded-sm p-1 hover:bg-slate-300">Add DICOM Tags</div>
+        </div>
+    {/if}
 </div>
