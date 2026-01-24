@@ -1,4 +1,5 @@
 import Konva from 'konva';
+import jsPDF from 'jspdf';
 import type { RectConfig } from 'konva/lib/shapes/Rect';
 
 const BACKGROUND_LAYER: string = 'background-layer';
@@ -488,7 +489,8 @@ function createStagesState() {
             try {
                 shape.destroy();
             } catch (e) {
-                // ignore individual destroy failures
+                // eslint-disable-next-line no-console
+                console.error(`Failed to destroy shape. [shape=${shape.id()}]`, e);
             }
         });
 
@@ -513,7 +515,6 @@ function createStagesState() {
 
     function initShape(shape: Konva.Shape, shapeType: Shape) {
         shape.on('click tap', () => {
-            console.log('CLICK TAP');
             if (state.SelectedShapes === null || state.SelectedShapes.shapes.length === 0) {
                 state.SelectedShapes = {
                     shapes: [shape]
@@ -524,13 +525,12 @@ function createStagesState() {
             state.SelectedShapes = {
                 shapes: [shape]
             };
-            state.ShowMenuList = false;
+            state.MenuList = null;
         });
 
         if (shapeType === 'Image') {
             shape.on('contextmenu', (e) => {
                 e.evt.preventDefault();
-                console.log('RIGHT CLICK');
                 state.MenuList = { pos: { x: e.evt.clientX, y: e.evt.clientY } };
             });
         }
@@ -787,6 +787,48 @@ function createStagesState() {
         });
     }
 
+    function exportToPdf(fileName: string, pixelRatio: number): 'Ok' | 'Error' {
+        // Ref: https://konvajs.org/docs/sandbox/Canvas_to_PDF.html
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        const width = stage.width();
+        const height = stage.height();
+
+        const pdf = new jsPDF({
+            orientation: width > height ? 'l' : 'p',
+            unit: 'px',
+            format: [width, height]
+        });
+
+        const textNodes = stage.find('Text');
+        textNodes.forEach((node) => {
+            if (!node.isVisible()) {
+                return;
+            }
+
+            const textNode = node as Konva.Text;
+            const size = textNode.fontSize() / 0.75;
+            pdf.setFontSize(size);
+            pdf.text(textNode.text(), textNode.x(), textNode.y(), {
+                baseline: 'top',
+                angle: -textNode.getAbsoluteRotation()
+            });
+        });
+
+        const dataUrl = stage.toDataURL({
+            pixelRatio: pixelRatio,
+            mimeType: 'image/jpeg'
+        });
+
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+
+        pdf.save(fileName);
+        return 'Ok';
+    }
+
     return {
         // Getters
         get state() {
@@ -812,6 +854,9 @@ function createStagesState() {
         addLineToSelectedStage,
         addTextToSelectedStage,
         setFillColorOfSelectedShapes,
-        addImageToSelectedStageAsync
+        addImageToSelectedStageAsync,
+
+        // Others
+        exportToPdf
     };
 }
