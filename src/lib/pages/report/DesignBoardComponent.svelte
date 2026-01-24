@@ -6,6 +6,8 @@
     import { untrack } from 'svelte';
     import FloppyDiskSvg from '$lib/svgs/FloppyDiskSvg.svelte';
     import { Templates } from '$lib/stores/Templates.state.svelte';
+    import { DcmImages } from '$lib/stores/DcmImages.state.svelte';
+    import AddTagsModal from './AddTagsModal.svelte';
 
     // Props
     interface Props {
@@ -83,6 +85,15 @@
         const serialized = StagesState.serializeSelectedStage();
         Templates.saveStageToStorage(randomUid, serialized);
     }
+
+    function onAddTagsMenuItemClicked(dcmImageUid: string) {
+        const dcmImage = DcmImages.state.Images.find((x) => x.uid === dcmImageUid);
+        if (dcmImage === undefined) {
+            console.warn('Dcm Image with UID not found.');
+            return;
+        }
+        Workspace.setAddDicomTagsModalData(dcmImage);
+    }
 </script>
 
 <div
@@ -136,14 +147,26 @@
         {/each}
     </div>
     {#if StagesState.state.MenuList !== null}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             class="absolute w-40 rounded-sm bg-gray-200 p-1"
             style="top: {StagesState.state.MenuList.pos.y}px; left: {StagesState.state.MenuList.pos
                 .x}px;"
             onclick={(e) => e.stopPropagation()}
             role="menu"
+            tabindex="0"
         >
-            <div class="cursor-default rounded-sm p-1 hover:bg-slate-300">Add DICOM Tags</div>
+            <button
+                class="w-full cursor-default rounded-sm p-1 hover:bg-slate-300"
+                onclick={() => onAddTagsMenuItemClicked(StagesState.state.MenuList!.id)}
+                role="menuitem"
+                type="button"
+            >
+                Add DICOM Tags
+            </button>
         </div>
+    {/if}
+    {#if Workspace.state.DicomTagsModalData}
+        <AddTagsModal dicomImageData={Workspace.state.DicomTagsModalData} />
     {/if}
 </div>

@@ -5,8 +5,10 @@ export interface DicomTag {
     Element: string;
     Description: string;
     Value: string;
+    Selected: boolean;
 }
 export interface DicomData {
+    uid: string;
     fileName: string;
     imageUrl: string;
     dicomTag: DicomTag[];
@@ -16,13 +18,15 @@ const DCM_FILES_STORAGE_KEY = 'dcm-files';
 
 export interface DcmImagesStateType {
     Images: Array<DicomData>;
+    SelectedImage: DicomData | null;
 }
 
 export const DcmImages = createStagesState();
 
 function createStagesState() {
     const state = $state<DcmImagesStateType>({
-        Images: getDcmImages()
+        Images: getDcmImages(),
+        SelectedImage: null
     });
 
     function getDcmImages(): Array<DicomData> {

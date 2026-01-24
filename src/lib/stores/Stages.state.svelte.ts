@@ -16,6 +16,7 @@ export interface StagesStateType {
     SelectedStageId: string | null;
     SelectedShapes: SelectionType | null;
     MenuList: {
+        id: string;
         pos: { x: number; y: number };
     } | null;
 }
@@ -531,7 +532,10 @@ function createStagesState() {
         if (shapeType === 'Image') {
             shape.on('contextmenu', (e) => {
                 e.evt.preventDefault();
-                state.MenuList = { pos: { x: e.evt.clientX, y: e.evt.clientY } };
+                state.MenuList = {
+                    id: shape.id(),
+                    pos: { x: e.evt.clientX, y: e.evt.clientY }
+                };
             });
         }
 
@@ -740,7 +744,10 @@ function createStagesState() {
         return 'Ok';
     }
 
-    async function addImageToSelectedStageAsync(src: string): Promise<'Ok' | 'Error'> {
+    async function addImageToSelectedStageAsync(
+        src: string,
+        dicomDataId: string
+    ): Promise<'Ok' | 'Error'> {
         const stage = getSelectedStage();
         if (stage === 'Error') {
             return 'Error';
@@ -758,6 +765,7 @@ function createStagesState() {
         const aspectRatio = originalWidth / originalHeight;
         const calculatedHeight = targetWidth / aspectRatio;
         const shape = new Konva.Image({
+            id: dicomDataId,
             image: img,
             x: stage.width() / 2,
             y: stage.height() / 2,
