@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { DicomData, DicomTag } from '$lib/stores/DcmImages.state.svelte';
+    import { StagesState } from '$lib/stores/Stages.state.svelte';
     import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import DicomTagTable from './DicomTagTable.svelte';
 
@@ -17,15 +18,10 @@
         Workspace.setAddDicomTagsModalData(null);
     }
 
-    function convertToCleanText(dicomTag: DicomTag): string {
-        return `${dicomTag.Description} : ${dicomTag.Value}`;
-    }
-
     function addTagsButtonClicked() {
         const selectedItems = dicomImageData.dicomTag.filter((x) => x.Selected);
-        selectedItems.forEach((element) => {
-            console.log(convertToCleanText(element));
-        });
+        StagesState.addDicomTagsTableToSelectedStage(selectedItems);
+        closeAddTagsModal();
     }
 </script>
 

@@ -22,7 +22,6 @@
 
     function highlight(node: HTMLElement, divInputs: DivInputs) {
         function action() {
-            console.log('highlight');
             if (searchInput) {
                 node.innerHTML = marker(
                     divInputs.contentText,

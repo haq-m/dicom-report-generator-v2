@@ -87,6 +87,7 @@
     }
 
     function onAddTagsMenuItemClicked(dcmImageUid: string) {
+        StagesState.resetMenuList();
         const dcmImage = DcmImages.state.Images.find((x) => x.uid === dcmImageUid);
         if (dcmImage === undefined) {
             console.warn('Dcm Image with UID not found.');

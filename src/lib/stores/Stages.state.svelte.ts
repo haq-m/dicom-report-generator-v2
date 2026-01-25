@@ -1,13 +1,15 @@
 import Konva from 'konva';
 import jsPDF from 'jspdf';
 import type { RectConfig } from 'konva/lib/shapes/Rect';
+import type { DicomTag } from './DcmImages.state.svelte';
 
 const BACKGROUND_LAYER: string = 'background-layer';
 const BACKGROUND_RECT: string = 'background-rect';
 const SHAPES_LAYER: string = 'shapes-layer';
 const TRANSFORMER: string = 'transformer';
+const DICOM_TAG_TABLE: string = 'dicom-tags-table';
 
-type Shape = 'Line' | 'Rect' | 'Circle' | 'Text' | 'MultipleShapes' | 'Image';
+type Shape = 'Line' | 'Rect' | 'Circle' | 'Text' | 'MultipleShapes' | 'Image' | 'DicomTagsTable';
 export type SelectionType = {
     shapes: Konva.Shape[];
 };
@@ -116,11 +118,13 @@ function createStagesState() {
 
     async function deserializeStage(json: string, containerId: string) {
         const stage = Konva.Stage.create(json, containerId) as Konva.Stage;
+        initStageEvents(stage);
+        const tr = initTransformer(stage);
         for (const child of stage.children) {
             for (const childChild of child.getChildren()) {
                 if (childChild instanceof Konva.Text) {
                     const fontFamily = childChild.getAttr('fontFamily');
-                    initShape(childChild, 'Text');
+                    initShape(childChild, 'Text', tr);
                     initTextEdit(childChild, stage);
                     if (fontFamily) {
                         await loadAndApplyFontAsync(fontFamily, childChild);
@@ -128,21 +132,23 @@ function createStagesState() {
                 }
 
                 if (childChild instanceof Konva.Rect) {
-                    initShape(childChild, 'Rect');
+                    initShape(childChild, 'Rect', tr);
                 }
 
                 if (childChild instanceof Konva.Line) {
-                    initShape(childChild, 'Line');
+                    initShape(childChild, 'Line', tr);
                 }
 
                 if (childChild instanceof Konva.Circle) {
-                    initShape(childChild, 'Circle');
+                    initShape(childChild, 'Circle', tr);
+                }
+
+                if (childChild instanceof Konva.Group) {
+                    initGroup(childChild, 'DicomTagsTable', tr);
                 }
             }
         }
 
-        initStageEvents(stage);
-        initTransformer(stage);
         state.Stages.set(containerId, stage);
     }
 
@@ -184,6 +190,11 @@ function createStagesState() {
             return 'Error';
         }
 
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
+            return 'Error';
+        }
+
         const shape = new Konva.Rect({
             x: stage.width() / 2 - 60,
             y: stage.height() / 2 - 60,
@@ -194,11 +205,8 @@ function createStagesState() {
         });
 
         layer.add(shape);
-        const transformer = stage.find(`#${TRANSFORMER}`)[0];
-        if (transformer) {
-            transformer.moveToTop();
-        }
-        initShape(shape, 'Rect');
+
+        initShape(shape, 'Rect', transformer);
         return 'Ok';
     }
 
@@ -213,6 +221,11 @@ function createStagesState() {
             return 'Error';
         }
 
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
+            return 'Error';
+        }
+
         const shape = new Konva.Circle({
             x: stage.width() / 2,
             y: stage.height() / 2,
@@ -222,11 +235,7 @@ function createStagesState() {
         });
 
         layer.add(shape);
-        const transformer = stage.find(`#${TRANSFORMER}`)[0];
-        if (transformer) {
-            transformer.moveToTop();
-        }
-        initShape(shape, 'Circle');
+        initShape(shape, 'Circle', transformer);
         return 'Ok';
     }
 
@@ -241,6 +250,11 @@ function createStagesState() {
             return 'Error';
         }
 
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
+            return 'Error';
+        }
+
         const shape = new Konva.Line({
             points: [50, 50, 200, 50], // [x1, y1, x2, y2]
             stroke: fillColor,
@@ -250,11 +264,7 @@ function createStagesState() {
         });
 
         layer.add(shape);
-        const transformer = stage.find(`#${TRANSFORMER}`)[0];
-        if (transformer) {
-            transformer.moveToTop();
-        }
-        initShape(shape, 'Line');
+        initShape(shape, 'Line', transformer);
         return 'Ok';
     }
 
@@ -266,6 +276,11 @@ function createStagesState() {
 
         const layer = getShapesLayer(stage);
         if (layer === 'Error') {
+            return 'Error';
+        }
+
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
             return 'Error';
         }
 
@@ -282,11 +297,7 @@ function createStagesState() {
 
         await loadAndApplyFontAsync(fontName, shape);
         layer.add(shape);
-        initShape(shape, 'Text');
-        const transformer = stage.find(`#${TRANSFORMER}`)[0];
-        if (transformer !== undefined) {
-            transformer.moveToTop();
-        }
+        initShape(shape, 'Text', transformer);
         initTextEdit(shape, stage);
 
         return 'Ok';
@@ -318,7 +329,15 @@ function createStagesState() {
         return layer;
     }
 
-    function initTransformer(stage: Konva.Stage) {
+    function getStageTransformer(stage: Konva.Stage): Konva.Transformer | 'Error' {
+        const transformer = stage.find(`#${TRANSFORMER}`)[0];
+        if (!(transformer instanceof Konva.Transformer)) {
+            return 'Error';
+        }
+        return transformer;
+    }
+
+    function initTransformer(stage: Konva.Stage): Konva.Transformer {
         const tr = new Konva.Transformer({
             id: TRANSFORMER,
             boundBoxFunc: (oldBox, newBox) => {
@@ -361,6 +380,11 @@ function createStagesState() {
                     if (target === stage || target.id() === BACKGROUND_RECT) {
                         tr.nodes([]);
                         child.batchDraw();
+                        return;
+                    }
+
+                    // If right click don't activate transformer
+                    if (e.evt instanceof MouseEvent && e.evt.button === 2) {
                         return;
                     }
 
@@ -434,6 +458,22 @@ function createStagesState() {
                 shape.setAbsolutePosition(newAbsPos);
             });
         });
+
+        stage.on('dblclick', (e) => {
+            if (e.target === stage) {
+                tr.nodes([]);
+                return;
+            }
+
+            const group = e.target.findAncestor(`.${DICOM_TAG_TABLE}`);
+            if (group instanceof Konva.Group) {
+                tr.nodes([group]);
+            } else {
+                tr.nodes([e.target]);
+            }
+        });
+
+        return tr;
     }
 
     function isMultipleShapesSelected(): boolean {
@@ -514,7 +554,7 @@ function createStagesState() {
         return 'Ok';
     }
 
-    function initShape(shape: Konva.Shape, shapeType: Shape) {
+    function initShape(shape: Konva.Shape, shapeType: Shape, transformer: Konva.Transformer) {
         shape.on('click tap', () => {
             if (state.SelectedShapes === null || state.SelectedShapes.shapes.length === 0) {
                 state.SelectedShapes = {
@@ -550,6 +590,20 @@ function createStagesState() {
             });
         }
 
+        transformer.moveToTop();
+
+        return 'Ok';
+    }
+
+    function initGroup(group: Konva.Group, shapeType: Shape, transformer: Konva.Transformer) {
+        if (shapeType === 'DicomTagsTable' && transformer !== undefined) {
+            group.on('click tap', (e) => {
+                e.cancelBubble = true;
+                transformer.nodes([group]);
+            });
+        }
+
+        transformer.moveToTop();
         return 'Ok';
     }
 
@@ -758,6 +812,11 @@ function createStagesState() {
             return 'Error';
         }
 
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
+            return 'Error';
+        }
+
         const img = await loadImage(src);
         const originalWidth = img.width;
         const originalHeight = img.height;
@@ -776,11 +835,7 @@ function createStagesState() {
         });
 
         layer.add(shape);
-        initShape(shape, 'Image');
-        const transformer = stage.find(`#${TRANSFORMER}`)[0];
-        if (transformer) {
-            transformer.moveToTop();
-        }
+        initShape(shape, 'Image', transformer);
         return 'Ok';
     }
 
@@ -795,7 +850,11 @@ function createStagesState() {
         });
     }
 
-    function exportToPdf(fileName: string, pixelRatio: number): 'Ok' | 'Error' {
+    function exportToPdf(
+        fileName: string,
+        pixelRatio: number,
+        debugMode: boolean = true
+    ): 'Ok' | 'Error' {
         // Ref: https://konvajs.org/docs/sandbox/Canvas_to_PDF.html
         const stage = getSelectedStage();
         if (stage === 'Error') {
@@ -811,6 +870,12 @@ function createStagesState() {
             format: [width, height]
         });
 
+        const dataUrl = stage.toDataURL({
+            pixelRatio: pixelRatio,
+            mimeType: 'image/jpeg'
+        });
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+
         const textNodes = stage.find('Text');
         textNodes.forEach((node) => {
             if (!node.isVisible()) {
@@ -818,23 +883,198 @@ function createStagesState() {
             }
 
             const textNode = node as Konva.Text;
-            const size = textNode.fontSize() / 0.75;
-            pdf.setFontSize(size);
-            pdf.text(textNode.text(), textNode.x(), textNode.y(), {
-                baseline: 'top',
-                angle: -textNode.getAbsoluteRotation()
+            const textRaw = textNode.text();
+            if (!textRaw || textRaw.trim() === '') {
+                return;
+            }
+
+            // Check if multi-line text
+            const lines = textNode.textArr;
+            if (!lines || lines.length === 0) {
+                return;
+            }
+
+            const scale = textNode.getAbsoluteScale();
+            const absPos = textNode.getAbsolutePosition();
+            const padding = textNode.padding() * scale.x;
+            const fontSize = textNode.fontSize() * scale.y * 1.15;
+
+            let startY = absPos.y + padding;
+
+            const lineHeightRaw = textNode.lineHeight();
+            const singleLineHeight = textNode.fontSize() * lineHeightRaw * scale.y * 1.15;
+            const totalTextBlockHeight = lines.length * singleLineHeight;
+            const boxHeight = textNode.height() * scale.y;
+            if (textNode.verticalAlign() === 'middle') {
+                const offset = (boxHeight - totalTextBlockHeight) / 2;
+                startY = absPos.y + offset;
+            } else if (textNode.verticalAlign() === 'bottom') {
+                const offset = boxHeight - padding - totalTextBlockHeight;
+                startY = absPos.y + offset;
+            }
+
+            // Simple Font matching
+            const style = textNode.fontStyle();
+            const isBold = style.toLowerCase().includes('bold');
+            const isItalic = style.toLowerCase().includes('italic');
+
+            let pdfStyle = 'normal';
+            if (isBold && isItalic) {
+                pdfStyle = 'bolditalic';
+            } else if (isBold) {
+                pdfStyle = 'bold';
+            } else if (isItalic) {
+                pdfStyle = 'italic';
+            }
+
+            pdf.setFont('Arial', pdfStyle);
+            pdf.setFontSize(fontSize);
+
+            lines.forEach((lineObj: { text: string; width: number }, index: number) => {
+                const lineText = lineObj.text;
+                const lineX = absPos.x + padding;
+                const lineY = startY + index * singleLineHeight;
+
+                const konvaLineWidth = lineObj.width * scale.x;
+                const pdfLineWidth = pdf.getTextWidth(lineText);
+
+                let charSpace = 0;
+                if (lineText.length > 1) {
+                    charSpace = (konvaLineWidth - pdfLineWidth) / (lineText.length - 1);
+                }
+                if (!isFinite(charSpace)) {
+                    charSpace = 0;
+                }
+
+                if (debugMode) {
+                    pdf.setTextColor(255, 0, 0);
+                    pdf.text(lineText, lineX, lineY, {
+                        baseline: 'top',
+                        angle: -textNode.getAbsoluteRotation(),
+                        charSpace: charSpace
+                    });
+                } else {
+                    pdf.setTextColor(0, 0, 0);
+
+                    pdf.text(lineText, lineX, lineY, {
+                        baseline: 'top',
+                        angle: -textNode.getAbsoluteRotation(),
+                        charSpace: charSpace,
+                        renderingMode: 'invisible'
+                    });
+                }
             });
         });
 
-        const dataUrl = stage.toDataURL({
-            pixelRatio: pixelRatio,
-            mimeType: 'image/jpeg'
-        });
-
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
-
         pdf.save(fileName);
         return 'Ok';
+    }
+
+    interface TableShapeConfig {
+        x: number;
+        y: number;
+        cellHeight: number;
+        colWidths: [displayText: number, valueText: number];
+        headerFill: string;
+        rowFill: string;
+        stroke: string;
+        fontSize: number;
+        padding: number;
+    }
+
+    function addDicomTagsTableToSelectedStage(dicomImageTags: Array<DicomTag>): 'Ok' | 'Error' {
+        const stage = getSelectedStage();
+        if (stage === 'Error') {
+            return 'Error';
+        }
+
+        const layer = getShapesLayer(stage);
+        if (layer === 'Error') {
+            return 'Error';
+        }
+
+        const transformer = getStageTransformer(stage);
+        if (transformer === 'Error') {
+            return 'Error';
+        }
+
+        const config: TableShapeConfig = {
+            x: 50,
+            y: 50,
+            cellHeight: 40,
+            colWidths: [150, 200], // Width for [Name, Value] columns
+            headerFill: '#e0e0e0',
+            rowFill: '#ffffff',
+            stroke: '#333333',
+            fontSize: 14,
+            padding: 10
+        };
+
+        const tableGroup = new Konva.Group({
+            x: config.x,
+            y: config.y,
+            draggable: true,
+            name: DICOM_TAG_TABLE
+        });
+
+        drawTableRow(tableGroup, 0, ['Name', 'Value'], true, config);
+
+        dicomImageTags.forEach((item, index) => {
+            drawTableRow(tableGroup, index + 1, [item.Description, item.Value], false, config);
+        });
+        layer.add(tableGroup);
+        initGroup(tableGroup, 'DicomTagsTable', transformer);
+
+        return 'Ok';
+    }
+
+    function drawTableRow(
+        group: Konva.Group,
+        rowIndex: number,
+        texts: string[],
+        isHeader: boolean,
+        config: TableShapeConfig
+    ) {
+        const currentY = rowIndex * config.cellHeight;
+        let currentX = 0;
+
+        texts.forEach((text, colIndex) => {
+            const cellWidth = config.colWidths[colIndex];
+
+            const rect = new Konva.Rect({
+                x: currentX,
+                y: currentY,
+                width: cellWidth,
+                height: config.cellHeight,
+                fill: isHeader ? config.headerFill : config.rowFill,
+                stroke: config.stroke,
+                strokeWidth: 1
+            });
+
+            const textNode = new Konva.Text({
+                x: currentX + config.padding,
+                y: currentY,
+                text: text,
+                width: cellWidth! - config.padding * 2,
+                height: config.cellHeight,
+                fontSize: config.fontSize,
+                fontFamily: 'Arial',
+                fontStyle: isHeader ? 'bold' : 'normal',
+                verticalAlign: 'middle',
+                fill: 'black',
+                listening: false
+            });
+
+            group.add(rect);
+            group.add(textNode);
+
+            // Move X pointer for the next column
+            currentX += cellWidth!;
+        });
+    }
+
+    function resetMenuList() {
+        state.MenuList = null;
     }
 
     return {
@@ -863,8 +1103,10 @@ function createStagesState() {
         addTextToSelectedStage,
         setFillColorOfSelectedShapes,
         addImageToSelectedStageAsync,
+        addDicomTagsTableToSelectedStage,
 
         // Others
-        exportToPdf
+        exportToPdf,
+        resetMenuList
     };
 }
