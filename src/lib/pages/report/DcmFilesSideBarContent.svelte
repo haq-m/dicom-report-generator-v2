@@ -41,6 +41,7 @@
                 const dicomTagList = getDicomTag(image);
                 console.log('TAGS: ', dicomTagList);
                 DcmImages.addDcmImage({
+                    uid: crypto.randomUUID(),
                     fileName: file.name,
                     imageUrl: imageUrl,
                     dicomTag: dicomTagList
@@ -100,8 +101,8 @@
         fileInput.click();
     }
 
-    function onImageClicked(src: string) {
-        StagesState.addImageToSelectedStageAsync(src);
+    function onImageClicked(src: string, dicomDataId: string) {
+        StagesState.addImageToSelectedStageAsync(src, dicomDataId);
     }
 
     function onXButtonClicked() {
@@ -146,7 +147,7 @@
                     <img
                         src={item.imageUrl}
                         alt={item.fileName}
-                        onclick={() => onImageClicked(item.imageUrl)}
+                        onclick={() => onImageClicked(item.imageUrl, item.uid)}
                     />
                 {/snippet}
             </Masonry>

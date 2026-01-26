@@ -1,3 +1,5 @@
+import type { DicomData } from './DcmImages.state.svelte';
+
 type Make<TypeLiteral extends string, Extras extends Record<string, unknown>> = {
     type: TypeLiteral;
 } & Extras;
@@ -20,6 +22,7 @@ export type SideBarSelectionType =
 export interface WorkspaceStateType {
     SideBarSelection: SideBarSelectionType;
     CanvasScale: number;
+    DicomTagsModalData: DicomData | null;
 }
 
 export const Workspace = createWorkspaceState();
@@ -27,7 +30,8 @@ export const Workspace = createWorkspaceState();
 export function createWorkspaceState() {
     const state = $state<WorkspaceStateType>({
         SideBarSelection: null,
-        CanvasScale: 100
+        CanvasScale: 100,
+        DicomTagsModalData: null
     });
 
     function setSideBarContentTypeSelection(type: SideBarSelectionType) {
@@ -42,6 +46,10 @@ export function createWorkspaceState() {
         state.CanvasScale = value;
     }
 
+    function setAddDicomTagsModalData(data: DicomData | null) {
+        state.DicomTagsModalData = data;
+    }
+
     return {
         // Getters
         get state() {
@@ -54,6 +62,7 @@ export function createWorkspaceState() {
         // Setters
         setSideBarContentTypeSelection,
         clearSideBarSelection,
-        setCanvasScale
+        setCanvasScale,
+        setAddDicomTagsModalData
     };
 }
