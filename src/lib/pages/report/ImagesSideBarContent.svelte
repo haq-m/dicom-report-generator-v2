@@ -2,6 +2,7 @@
     import Masonry from 'svelte-bricks';
     import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
+    import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Locals
     let selectedImages: string[] = [];
@@ -44,6 +45,7 @@
 
     function onImageClicked(src: string) {
         console.log('Image clicked: ', src);
+        StagesState.addImageToSelectedStageAsync(src, src, 'default');
     }
 
     function onXButtonClicked() {
@@ -55,7 +57,7 @@
     }
 </script>
 
-<div class="flex h-full w-full flex-col">
+<div class="flex h-full w-full flex-col p-2">
     <div class="flex h-10 items-center justify-center font-medium">
         <div class="text-lg">Images</div>
         <div class="grow"></div>
@@ -88,6 +90,8 @@
                 gap={5}
             >
                 {#snippet children({ item })}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <img src={item} alt={item} onclick={() => onImageClicked(item)} />
                 {/snippet}
             </Masonry>

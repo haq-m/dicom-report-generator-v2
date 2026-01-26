@@ -16,7 +16,7 @@
     }
 </script>
 
-<div class="flex h-full w-full flex-col">
+<div class="flex h-full w-full flex-col p-2">
     <div class="flex border-b border-b-gray-300 pt-2 pb-2">
         <div class="font-mono">Templates</div>
         <div class="grow"></div>

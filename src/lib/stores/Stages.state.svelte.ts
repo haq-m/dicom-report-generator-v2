@@ -8,6 +8,8 @@ const BACKGROUND_RECT: string = 'background-rect';
 const SHAPES_LAYER: string = 'shapes-layer';
 const TRANSFORMER: string = 'transformer';
 const DICOM_TAG_TABLE: string = 'dicom-tags-table';
+const DICOM_IMAGE: string = 'dicom-image';
+const DEFAULT_IMAGE: string = 'default-image';
 
 type Shape = 'Line' | 'Rect' | 'Circle' | 'Text' | 'MultipleShapes' | 'Image' | 'DicomTagsTable';
 export type SelectionType = {
@@ -38,7 +40,7 @@ function createStagesState() {
         containerId: string,
         width: number,
         height: number,
-        backgroundFill: string = 'lightblue'
+        backgroundFill: string = 'white'
     ): Konva.Stage {
         // 1. Add Stage
         const stage = new Konva.Stage({
@@ -146,10 +148,40 @@ function createStagesState() {
                 if (childChild instanceof Konva.Group) {
                     initGroup(childChild, 'DicomTagsTable', tr);
                 }
+
+                if (childChild instanceof Konva.Image) {
+                    const img = new Image();
+                    const imageUrl = childChild.getAttr('originalSrc');
+                    img.src = imageUrl;
+                    childChild.image(img);
+                    initShape(childChild, 'Image', tr);
+                }
             }
         }
 
         state.Stages.set(containerId, stage);
+    }
+
+    async function deserializeStageForThumbnail(json: string, container: HTMLDivElement) {
+        const stage = Konva.Stage.create(json, container) as Konva.Stage;
+        for (const child of stage.children) {
+            for (const childChild of child.getChildren()) {
+                if (childChild instanceof Konva.Text) {
+                    const fontFamily = childChild.getAttr('fontFamily');
+                    if (fontFamily) {
+                        await loadAndApplyFontAsync(fontFamily, childChild);
+                    }
+                }
+
+                if (childChild instanceof Konva.Image) {
+                    const img = new Image();
+                    const imageUrl = childChild.getAttr('originalSrc');
+                    img.src = imageUrl;
+                    childChild.image(img);
+                }
+            }
+        }
+        return stage;
     }
 
     function setBgFillColorToSelectedStage(fillColor: string, opacity: number = 1): 'Ok' | 'Error' {
@@ -568,8 +600,7 @@ function createStagesState() {
             };
             state.MenuList = null;
         });
-
-        if (shapeType === 'Image') {
+        if (shapeType === 'Image' && shape.name() === DICOM_IMAGE) {
             shape.on('contextmenu', (e) => {
                 e.evt.preventDefault();
                 state.MenuList = {
@@ -800,7 +831,8 @@ function createStagesState() {
 
     async function addImageToSelectedStageAsync(
         src: string,
-        dicomDataId: string
+        id: string,
+        imageType: 'dcm' | 'default'
     ): Promise<'Ok' | 'Error'> {
         const stage = getSelectedStage();
         if (stage === 'Error') {
@@ -824,7 +856,8 @@ function createStagesState() {
         const aspectRatio = originalWidth / originalHeight;
         const calculatedHeight = targetWidth / aspectRatio;
         const shape = new Konva.Image({
-            id: dicomDataId,
+            id: id,
+            name: imageType === 'dcm' ? DICOM_IMAGE : DEFAULT_IMAGE,
             image: img,
             x: stage.width() / 2,
             y: stage.height() / 2,
@@ -1091,6 +1124,7 @@ function createStagesState() {
         serializeSelectedStage,
         serializeStage,
         deserializeStage,
+        deserializeStageForThumbnail,
         setBgFillColorToSelectedStage,
         isMultipleShapesSelected,
         selectedShapesType,

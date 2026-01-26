@@ -55,7 +55,7 @@
     function getDicomTag(image: any): DicomTag[] {
         let tags = [];
         for (const [key, value] of Object.entries(image.tags)) {
-            const tag = getDescriptionName(key, `${value}`, image.tags[key].getConvertedValue());
+            const tag = convertToDicomTag(key, `${value}`, image.tags[key].getConvertedValue());
             if (tag) {
                 tags.push(tag);
             }
@@ -67,7 +67,7 @@
         return regex.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
     }
 
-    function getDescriptionName(
+    function convertToDicomTag(
         dicomId: string,
         displayName: string,
         value: string
@@ -91,7 +91,8 @@
                 Group: group,
                 Element: element,
                 Description: des,
-                Value: sanitizedValue
+                Value: sanitizedValue,
+                Selected: false
             };
         }
         return null;
@@ -102,7 +103,7 @@
     }
 
     function onImageClicked(src: string, dicomDataId: string) {
-        StagesState.addImageToSelectedStageAsync(src, dicomDataId);
+        StagesState.addImageToSelectedStageAsync(src, dicomDataId, 'dcm');
     }
 
     function onXButtonClicked() {
@@ -144,6 +145,8 @@
                 gap={5}
             >
                 {#snippet children({ item })}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <img
                         src={item.imageUrl}
                         alt={item.fileName}

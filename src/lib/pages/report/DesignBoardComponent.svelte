@@ -29,10 +29,12 @@
                 if (container.stageData !== null) {
                     StagesState.deserializeStage(container.stageData, container.id);
                 } else {
+                    const selectedColor = Workspace.tryGetSelectedColor;
                     StagesState.addNewStageToContainer(
                         container.id,
                         container.width,
-                        container.height
+                        container.height,
+                        selectedColor ?? '#ffffff'
                     );
                 }
                 if (index === 0 && StagesState.state.SelectedStageId === null) {

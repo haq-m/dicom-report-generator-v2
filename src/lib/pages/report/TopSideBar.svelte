@@ -6,9 +6,9 @@
     // Reactivity
     let lastSelectedColor = $derived.by(() => {
         if (Workspace.state.SideBarSelection?.type === 'Colors') {
-            return Workspace.state.SideBarSelection?.selectedColor ?? '#545454';
+            return Workspace.state.SideBarSelection?.selectedColor ?? '#ffffff';
         }
-        return '#545454';
+        return '#ffffff';
     });
 
     // Function
@@ -17,11 +17,25 @@
             Workspace.clearSideBarSelection();
             return;
         }
-        Workspace.setSideBarContentTypeSelection({ type: 'Colors', selectedColor: null });
+        Workspace.setSideBarContentTypeSelection({ type: 'Colors', selectedColor: '#ffffff' });
+    }
+
+    function getFilenameSafeTimestamp(): string {
+        const date = new Date();
+        const year = date.getFullYear();
+        // Month is zero-indexed, so add 1 and pad with '0'
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        // Format: YYYY-MM-DDTHHMMSS (e.g., 2026-01-26T185200)
+        return `${year}-${month}-${day}T${hours}${minutes}${seconds}`;
     }
 
     function onExportButtonClicked() {
-        StagesState.exportToPdf('hello.pdf', 2);
+        StagesState.exportToPdf(`report_${getFilenameSafeTimestamp()}.pdf`, 2);
     }
 </script>
 
@@ -30,18 +44,22 @@
 >
     <!-- svelte-ignore event_directive_deprecated -->
     <!-- svelte-ignore a11y_consider_explicit_label -->
+    <span>Color: </span>
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-        class="h-full rounded-md p-1 hover:bg-slate-200"
-        style="color: {lastSelectedColor};"
-        on:click={onColorButtonClicked}
+        class="flex h-full items-center justify-center rounded-md p-1 hover:bg-slate-200"
+        onclick={onColorButtonClicked}
     >
-        <div class="h-full w-8 rounded-sm" style="background-color: {lastSelectedColor};"></div>
+        <div
+            class=" flex h-full w-8 rounded-sm border border-slate-200"
+            style="background-color: {lastSelectedColor};"
+        ></div>
     </button>
     <div class="grow"></div>
     <!-- svelte-ignore event_directive_deprecated -->
     <button
         class="flex h-full flex-row rounded-md px-2 hover:bg-slate-200"
-        on:click={onExportButtonClicked}
+        onclick={onExportButtonClicked}
     >
         <div class="flex h-full items-center justify-start gap-x-2 rounded-md p-2">
             <ExportSvg />

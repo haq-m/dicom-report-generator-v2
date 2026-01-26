@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Konva from 'konva';
-
+    import { StagesState } from '$lib/stores/Stages.state.svelte';
+    
     // Props
     export let stageData: string;
     export let alt: string;
@@ -12,17 +12,17 @@
     });
 
     // Functions
-    function generateKonvaThumbnail(
+    async function generateKonvaThumbnail(
         serializedStage: string,
         options: {
             quality?: number;
             mimeType?: string;
         } = {}
-    ): string {
+    ): Promise<string> {
         const { quality = 0.8, mimeType = 'image/jpeg' } = options;
 
         const container = document.createElement('div');
-        const stage = Konva.Node.create(serializedStage, container) as Konva.Stage;
+        const stage = await StagesState.deserializeStageForThumbnail(serializedStage, container);
 
         const dataURL = stage.toDataURL({
             mimeType: mimeType,
