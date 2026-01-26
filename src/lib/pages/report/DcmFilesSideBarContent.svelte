@@ -103,7 +103,7 @@
     }
 
     function onImageClicked(src: string, dicomDataId: string) {
-        StagesState.addImageToSelectedStageAsync(src, dicomDataId);
+        StagesState.addImageToSelectedStageAsync(src, dicomDataId, 'dcm');
     }
 
     function onXButtonClicked() {

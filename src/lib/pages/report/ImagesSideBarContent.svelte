@@ -2,6 +2,7 @@
     import Masonry from 'svelte-bricks';
     import { Workspace } from '$lib/stores/Workspace.state.svelte';
     import CrossSvg from '$lib/svgs/CrossSvg.svelte';
+    import { StagesState } from '$lib/stores/Stages.state.svelte';
 
     // Locals
     let selectedImages: string[] = [];
@@ -44,6 +45,7 @@
 
     function onImageClicked(src: string) {
         console.log('Image clicked: ', src);
+        StagesState.addImageToSelectedStageAsync(src, src, 'default');
     }
 
     function onXButtonClicked() {
