@@ -38,7 +38,7 @@ function createStagesState() {
         containerId: string,
         width: number,
         height: number,
-        backgroundFill: string = 'lightblue'
+        backgroundFill: string = 'white'
     ): Konva.Stage {
         // 1. Add Stage
         const stage = new Konva.Stage({
