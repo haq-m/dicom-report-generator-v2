@@ -886,7 +886,7 @@ function createStagesState() {
     function exportToPdf(
         fileName: string,
         pixelRatio: number,
-        debugMode: boolean = true
+        debugMode: boolean = false
     ): 'Ok' | 'Error' {
         // Ref: https://konvajs.org/docs/sandbox/Canvas_to_PDF.html
         const stage = getSelectedStage();
