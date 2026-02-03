@@ -120,7 +120,7 @@
         </button>
     </div>
     <hr class="mx-1 my-2 border-slate-300" />
-    <div class="flex h-full flex-col overflow-y-scroll">
+    <div class="flex h-full flex-col overflow-y-auto">
         <button
             class="mt-2 mb-2 h-10 w-full items-center justify-center rounded-md bg-[#3A3A4C] text-center text-sm text-white"
             onclick={triggerFileInput}

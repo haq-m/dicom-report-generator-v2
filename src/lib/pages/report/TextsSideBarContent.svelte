@@ -34,7 +34,7 @@
         </button>
     </div>
     <div class="flex h-full pt-4">
-        <div class="flex h-full w-full flex-col overflow-y-scroll">
+        <div class="flex h-full w-full flex-col overflow-y-auto">
             {#each fonts as font}
                 <button
                     class="text-left"

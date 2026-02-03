@@ -9,14 +9,10 @@
 
 <div class="h-96 w-full">
     <table class="h-96 w-full table-auto overflow-hidden rounded-md border-none text-sm">
-        <thead
-            class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
-        >
+        <thead class="bg-gray-50 text-xs uppercase">
             <tr class="h-12">
                 <th scope="col" class="p-4">
-                    <div class="flex items-center">
-                        
-                    </div>
+                    <div class="flex items-center"></div>
                 </th>
                 <th scope="col" class="px-6 py-3"> Group </th>
                 <th scope="col" class="px-6 py-3"> Element </th>

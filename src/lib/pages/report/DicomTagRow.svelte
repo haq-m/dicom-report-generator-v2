@@ -50,9 +50,7 @@
 </script>
 
 {#if isDisplayTextAndSearchTextAMatch(searchInput)}
-    <tr
-        class="h-auto overflow-hidden border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-    >
+    <tr class="h-auto overflow-hidden border-b bg-white hover:bg-gray-50">
         <td class="w-4 p-4">
             <div class="flex items-center">
                 <DicomTagTableCheckbox tag={dicomItem} />
